@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "target": "ESnext",
+    "lib": ["ESNext"],
+    "declaration": true,
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "include": ["./src", "example.ts"]
+}

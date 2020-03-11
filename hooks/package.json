@@ -1,0 +1,4 @@
+{
+  "main": "../dist/hooks.js",
+  "types": "../dist/hooks.d.ts"
+}
