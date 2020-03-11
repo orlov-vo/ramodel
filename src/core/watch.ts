@@ -1,3 +1,3 @@
-export function watch(observable: any[], handler: (...observable: any[]) => void): () => void {
+export function watch(_observable: any[], _handler: (...observable: any[]) => void): () => void {
   return () => {};
 }

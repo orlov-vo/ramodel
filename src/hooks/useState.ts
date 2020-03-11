@@ -1,7 +1,7 @@
 import { hook, Hook } from '../core/hook';
 import { State } from '../core/state';
 
-type NewState<T> = T | ((previousState?: T) => T);
+type NewState<T> = T | ((previousState: T) => T);
 type StateUpdater<T> = (value: NewState<T>) => void;
 
 export const useState = hook(

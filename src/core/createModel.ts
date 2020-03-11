@@ -58,9 +58,9 @@ export function createModel<Init, Public extends object>(run: (init: Init) => Pu
           return undefined;
         },
 
-        set(_target, _key, _value, _reciver) {
-          // Deny all writing to the instance
-          return false;
+        set(target, key, _value, _reciver) {
+          // Allow writing only to internal fields in the instance
+          return key in target;
         },
 
         deleteProperty(_target, _key) {

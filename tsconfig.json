@@ -3,9 +3,11 @@
     "outDir": "./dist",
     "target": "ESnext",
     "lib": ["ESNext"],
+    "moduleResolution": "node",
+    "esModuleInterop": true,
     "declaration": true,
     "skipLibCheck": true,
     "strict": true
   },
-  "include": ["./src", "example.ts"]
+  "include": ["./src"]
 }

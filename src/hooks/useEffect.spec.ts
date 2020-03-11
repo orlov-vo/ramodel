@@ -1,28 +1,43 @@
 import { createModel } from '../core/createModel';
+import { destroy } from '../core/destroy';
 import { useState } from './useState';
 import { useEffect } from './useEffect';
+
+const defer = Promise.resolve().then.bind(Promise.resolve());
 
 const createInstance = <Init, Public extends object>(mainFn: (init: Init) => Public, init: Init) =>
   new (createModel(mainFn))(init);
 
 describe('useState', () => {
-  test('should accept initial state', () => {
-    const timer = createInstance(() => {
-      const [time, setTime] = useState(0);
+  test('should accept initial state', async () => {
+    const onStart = jest.fn();
+    const onEnd = jest.fn();
+
+    const instance = createInstance(() => {
+      const [value, setValue] = useState(0);
 
       useEffect(() => {
-        const timerId = setInterval(() => {
-          setTime(i => i + 1);
-        }, 1000);
+        onStart();
 
         return () => {
-          clearInterval(timerId);
+          onEnd();
         };
-      }, []);
+      }, [value]);
 
-      return {
-        time,
-      };
+      return { setValue };
     }, null);
+
+    await defer(() => instance.setValue(1));
+    await defer(() => instance.setValue(2));
+    await defer(() => instance.setValue(3));
+    await defer(() => {});
+
+    expect(onStart).toHaveBeenCalledTimes(4);
+    expect(onEnd).toHaveBeenCalledTimes(3);
+
+    destroy(instance);
+
+    expect(onStart).toHaveBeenCalledTimes(4);
+    expect(onEnd).toHaveBeenCalledTimes(4);
   });
 });

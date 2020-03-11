@@ -16,13 +16,6 @@ describe('createModel', () => {
     expect(mainFn).toHaveBeenCalledWith(init);
   });
 
-  test('has destoy method after init', () => {
-    const mainFn = jest.fn(() => ({}));
-    const instance = createInstance(mainFn, null);
-
-    expect(instance).toHaveProperty('destroy');
-  });
-
   test('init model with static fields', () => {
     const mainFn = jest.fn(init => ({ init, foo: 'bar' }));
     const instance = createInstance(mainFn, 'test');
