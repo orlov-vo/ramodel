@@ -2,7 +2,13 @@
 
 Awesome framework for creating reactive & flexible models with Hooks API.
 
-It is research project - it isn't ready for use in production yet.
+- **Easy to learn.** It has the same Redux Hooks API
+- **Typed.** The library provide full coverege typings via TypeScript
+- **Small.**
+
+**It is research project - it isn't ready for use in production yet.**
+
+[Demo TodoMVC example](https://codesandbox.io/s/ramodel-demo-todo-otcd7)
 
 ## Quick Start
 

@@ -1,7 +1,7 @@
 import { createModel } from '../core/createModel';
 import { useState } from './useState';
 
-const createInstance = <Init, Public extends object>(mainFn: (init: Init) => Public, init: Init) =>
+const createInstance = <Init extends object, Public extends object>(mainFn: (init: Init) => Public, init: Init) =>
   new (createModel(mainFn))(init);
 
 describe('useState', () => {
@@ -9,7 +9,7 @@ describe('useState', () => {
     const instance = createInstance(() => {
       const [value] = useState('foo');
       return { value };
-    }, null);
+    }, {});
 
     expect(instance).toHaveProperty('value', 'foo');
   });
@@ -18,7 +18,7 @@ describe('useState', () => {
     const instance = createInstance(() => {
       const [value, setValue] = useState('foo');
       return { value, setValue };
-    }, null);
+    }, {});
 
     expect(instance).toHaveProperty('value', 'foo');
     expect(instance).toHaveProperty('setValue');

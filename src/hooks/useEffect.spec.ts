@@ -5,7 +5,7 @@ import { useEffect } from './useEffect';
 
 const defer = Promise.resolve().then.bind(Promise.resolve());
 
-const createInstance = <Init, Public extends object>(mainFn: (init: Init) => Public, init: Init) =>
+const createInstance = <Init extends object, Public extends object>(mainFn: (init: Init) => Public, init: Init) =>
   new (createModel(mainFn))(init);
 
 describe('useState', () => {
@@ -25,7 +25,7 @@ describe('useState', () => {
       }, [value]);
 
       return { setValue };
-    }, null);
+    }, {});
 
     await defer(() => instance.setValue(1));
     await defer(() => instance.setValue(2));

@@ -1,4 +1,4 @@
-import { createModel, destroy, watch, get } from 'ramodel';
+import { createModel, destroy, watch, get, makeLense } from 'ramodel';
 import { useState, useReducer, useRef, useEffect, useMemo, useCallback } from 'ramodel/hooks';
 
 const BackendApi: any = null;
@@ -74,13 +74,13 @@ console.log(john.lastName); // => 'Baz'
 
 // Find first address, get state name from it and print the name to console
 // `get` function works same as `idx` https://github.com/facebookincubator/idx
-watch([get(john, _ => _.addresses.find(Boolean).name)], streetName => {
+watch([makeLense(john, _ => _.addresses.find(Boolean).name)], streetName => {
   console.log(`John lives on the ${streetName}`);
 });
 
 // Update once the first available address
 const unsunscribe = watch(
-  get(john, _ => _.addresses.find(Boolean)),
+  [makeLense(john, _ => _.addresses.find(Boolean))],
   johnAddress => {
     // Find first address and update it
     if (johnAddress) {

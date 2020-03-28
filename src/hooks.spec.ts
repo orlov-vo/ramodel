@@ -1,7 +1,7 @@
 import { createModel } from './core/createModel';
 import { useState, useMemo, useCallback } from './hooks';
 
-const createInstance = <Init, Public extends object>(mainFn: (init: Init) => Public, init: Init) =>
+const createInstance = <Init extends object, Public extends object>(mainFn: (init: Init) => Public, init: Init) =>
   new (createModel(mainFn))(init);
 
 describe('Hooks API', () => {

@@ -1,9 +1,5 @@
-import { BaseModel } from './types';
 import { SCHEDULER, RESULT } from './symbols';
-
-function isModel(instance: unknown): instance is BaseModel<unknown, unknown> {
-  return typeof instance === 'object' && instance != null && (instance as any)[SCHEDULER] != null;
-}
+import { isModel } from './isModel';
 
 /**
  * Shutdown all side effects and clean the state in models instances

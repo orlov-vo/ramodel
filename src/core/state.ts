@@ -1,7 +1,7 @@
 import { VoidFunction } from './types';
 import { HOOK, EFFECTS } from './symbols';
 import { Hook } from './hook';
-import { setCurrent, clear } from './interface';
+import { setCurrent, clear } from './stateInterface';
 
 export interface Callable {
   call: (state: State) => void;
@@ -12,11 +12,14 @@ export class State<H = unknown> {
 
   host: H;
 
-  [HOOK]: Map<number, Hook> = new Map();
+  [HOOK]: Map<number, Hook>;
 
-  [EFFECTS]: Callable[] = [];
+  [EFFECTS]: Callable[];
 
   constructor(update: VoidFunction, host: H) {
+    this[HOOK] = new Map();
+    this[EFFECTS] = [];
+
     this.update = update;
     this.host = host;
   }

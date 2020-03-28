@@ -1,11 +1,11 @@
 import { createModel } from './createModel';
 
-const createInstance = <Init, Public extends object>(mainFn: (init: Init) => Public, init: Init) =>
+const createInstance = <Init extends object, Public extends object>(mainFn: (init: Init) => Public, init: Init) =>
   new (createModel(mainFn))(init);
 
 describe('createModel', () => {
   test('init empty model', () => {
-    const init = 'test';
+    const init = {};
     const mainFn = jest.fn(() => ({}));
     const instance = createInstance(mainFn, init);
 
@@ -17,8 +17,8 @@ describe('createModel', () => {
   });
 
   test('init model with static fields', () => {
-    const mainFn = jest.fn(init => ({ init, foo: 'bar' }));
-    const instance = createInstance(mainFn, 'test');
+    const mainFn = jest.fn(({ init }) => ({ init, foo: 'bar' }));
+    const instance = createInstance(mainFn, { init: 'test' });
 
     expect(instance).toHaveProperty('init', 'test');
     expect(instance).toHaveProperty('foo', 'bar');

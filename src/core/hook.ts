@@ -1,5 +1,5 @@
 import { HOOK } from './symbols';
-import { current, notify } from './interface';
+import { current, notify } from './stateInterface';
 import { State } from './state';
 
 export abstract class Hook<P extends unknown[] = unknown[], R = unknown, H = unknown> {
