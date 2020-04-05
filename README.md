@@ -2,9 +2,9 @@
 
 Awesome framework for creating reactive & flexible models with Hooks API.
 
-- **Easy to learn.** It has the same Redux Hooks API
+- **Easy to learn.** It has the same [React Hooks API](https://reactjs.org/docs/hooks-reference.html)
+- **Small.** The main goal of project is create framework with very small and clear API 
 - **Typed.** The library provide full coverege typings via TypeScript
-- **Small.**
 
 **It is research project - it isn't ready for use in production yet.**
 
