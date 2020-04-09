@@ -3,14 +3,14 @@
 # Module: `ramodel`
 
 - Model
-  - [`createModel`](docs/api-main.md#createmodel)
-  - [`destroy`](docs/api-main.md#destroy)
+  - [`createModel`](#createmodel)
+  - [`destroy`](#destroy)
 - Lenses
-  - [`makeLense`](docs/api-main.md#makelense)
-  - [`combineLenses`](docs/api-main.md#combinelenses)
-  - [`watch`](docs/api-main.md#watch)
+  - [`makeLense`](#makelense)
+  - [`combineLenses`](#combinelenses)
+  - [`watch`](#watch)
 - Helpers
-  - [`get`](docs/api-main.md#get)
+  - [`get`](#get)
 
 ## `createModel`
 

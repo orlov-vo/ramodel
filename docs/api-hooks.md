@@ -7,13 +7,13 @@ In this document you can see adopted version of the [React Hooks API](https://re
 Currently RaModel supports the following hooks:
 
 - Basic Hooks
-  - [`useState`](api-hooks.md#usestate)
-  - [`useEffect`](api-hooks.md#useeffect)
+  - [`useState`](#usestate)
+  - [`useEffect`](#useeffect)
 - Additional Hooks
-  - [`useReducer`](api-hooks.md#usereducer)
-  - [`useMemo`](api-hooks.md#usememo)
-  - [`useCallback`](api-hooks.md#usecallback)
-  - [`useRef`](api-hooks.md#useref)
+  - [`useReducer`](#usereducer)
+  - [`useMemo`](#usememo)
+  - [`useCallback`](#usecallback)
+  - [`useRef`](#useref)
 
 ## `useState`
 
@@ -109,11 +109,11 @@ The array of dependencies is not passed as arguments to the effect function. Con
 const [state, dispatch] = useReducer(reducer, initialArg, init);
 ```
 
-An alternative to [`useState`](api-hooks.md#usestate). Accepts a reducer of type `(state, action) => newState`, and returns the current state paired with a `dispatch` method. (If you’re familiar with Redux, you already know how this works.)
+An alternative to [`useState`](#usestate). Accepts a reducer of type `(state, action) => newState`, and returns the current state paired with a `dispatch` method. (If you’re familiar with Redux, you already know how this works.)
 
-`useReducer` is usually preferable to `useState` when you have complex state logic that involves multiple sub-values or when the next state depends on the previous one. `useReducer` also lets you optimize performance for components that trigger deep updates because you can pass dispatch down instead of callbacks.
+`useReducer` is usually preferable to [`useState`](#usestate) when you have complex state logic that involves multiple sub-values or when the next state depends on the previous one. `useReducer` also lets you optimize performance for components that trigger deep updates because you can pass dispatch down instead of callbacks.
 
-Here’s the counter example from the `useState` section, rewritten to use a reducer:
+Here’s the counter example from the [`useState` section](#usestate), rewritten to use a reducer:
 
 ```js
 const initialState = { count: 0 };
@@ -150,7 +150,7 @@ console.log(counter.count); // => 0
 
 ### Specifying the initial state
 
-There are two different ways to initialize useReducer state. You may choose either one depending on the use case. The simplest way is to pass the initial state as a second argument:
+There are two different ways to initialize `useReducer` state. You may choose either one depending on the use case. The simplest way is to pass the initial state as a second argument:
 
 ```js
 const [state, dispatch] = useReducer(reducer, { count: initialCount });
