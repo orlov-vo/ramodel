@@ -1,4 +1,5 @@
 export const SCHEDULER = Symbol('ramodel.scheduler');
+export const INPUT = Symbol('ramodel.input');
 export const RESULT = Symbol('ramodel.result');
 export const EVENT_EMITTER = Symbol('ramodel.event-emitter');
 

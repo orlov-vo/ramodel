@@ -1,8 +1,7 @@
 import memoizeOne from 'memoize-one';
 import { EVENT_EMITTER } from './symbols';
+import { EVENT_CHANGE } from './events';
 import { Lense } from './lense';
-
-const EVENT_CHANGE = 'change';
 
 type UnsubscribeFn = () => void;
 

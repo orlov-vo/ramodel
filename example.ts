@@ -1,4 +1,4 @@
-import { createModel, destroy, watch, get, makeLense } from 'ramodel';
+import { createModel, update, destroy, watch, get, makeLense } from 'ramodel';
 import { useState, useReducer, useRef, useEffect, useMemo, useCallback } from 'ramodel/hooks';
 
 const BackendApi: any = null;
@@ -8,10 +8,10 @@ interface UserProps {
   lastName: string;
 }
 
-const User = createModel((init: UserProps) => {
+const User = createModel((input: UserProps) => {
   // Basic fields
-  const [firstName, setFirstName] = useState(init.firstName);
-  const [lastName, setLastName] = useState(init.lastName);
+  const [firstName, setFirstName] = useState(input.firstName);
+  const [lastName, setLastName] = useState(input.lastName);
 
   // Computed field
   const name = useMemo(() => `${firstName} ${lastName}`, [firstName, lastName]);
@@ -52,15 +52,15 @@ interface AddressProps {
   street: string;
 }
 
-const Address = createModel((init: AddressProps) => {
+const Address = createModel((input: AddressProps) => {
   // Basic fields
-  const [street, setStreet] = useState(init.street);
+  const [street, setStreet] = useState(input.street);
 
   // Export public fields and methods - they are read only
   return {
-    country: init.country,
-    zip: init.zip,
-    city: init.city,
+    country: input.country,
+    zip: input.zip,
+    city: input.city,
     street,
     setStreet,
   };
@@ -79,16 +79,17 @@ watch([makeLense(john, _ => _.addresses.find(Boolean).name)], streetName => {
 });
 
 // Update once the first available address
-const unsunscribe = watch(
-  [makeLense(john, _ => _.addresses.find(Boolean))],
-  johnAddress => {
-    // Find first address and update it
-    if (johnAddress) {
-      johnAddress.setStreet('Oxford');
-      unsunscribe();
-    }
-  },
-);
+const unsunscribe = watch([makeLense(john, _ => _.addresses.find(Boolean))], johnAddress => {
+  // Find first address and update it
+  if (johnAddress) {
+    johnAddress.setStreet('Oxford');
+    unsunscribe();
+  }
+});
+
+// Update input and re-run main function in model
+update(john, { firstName: 'Jesica', lastName: 'Brown' });
+console.log(john.name); // => 'Jesica Brown'
 
 setTimeout(() => {
   // Framework add this method to all models - its needed for clear side effects

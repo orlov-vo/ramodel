@@ -1,26 +1,23 @@
-import { createModel } from './createModel';
-
-const createInstance = <Init extends object, Public extends object>(mainFn: (init: Init) => Public, init: Init) =>
-  new (createModel(mainFn))(init);
+import { createInstance } from './createInstance';
 
 describe('createModel', () => {
   test('init empty model', () => {
-    const init = {};
+    const input = {};
     const mainFn = jest.fn(() => ({}));
-    const instance = createInstance(mainFn, init);
+    const instance = createInstance(input, mainFn);
 
     // Micro-hack to flush all tasks via read state
     ((() => {}) as any)((instance as any).foo);
 
     expect(mainFn).toHaveBeenCalledTimes(1);
-    expect(mainFn).toHaveBeenCalledWith(init);
+    expect(mainFn).toHaveBeenCalledWith(input);
   });
 
   test('init model with static fields', () => {
-    const mainFn = jest.fn(({ init }) => ({ init, foo: 'bar' }));
-    const instance = createInstance(mainFn, { init: 'test' });
+    const mainFn = jest.fn(({ input }) => ({ input, foo: 'bar' }));
+    const instance = createInstance({ input: 'test' }, mainFn);
 
-    expect(instance).toHaveProperty('init', 'test');
+    expect(instance).toHaveProperty('input', 'test');
     expect(instance).toHaveProperty('foo', 'bar');
 
     expect(mainFn).toHaveBeenCalledTimes(1);

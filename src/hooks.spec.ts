@@ -1,35 +1,29 @@
-import { createModel } from './core/createModel';
+import { createInstance } from './core/createInstance';
 import { useState, useMemo, useCallback } from './hooks';
-
-const createInstance = <Init extends object, Public extends object>(mainFn: (init: Init) => Public, init: Init) =>
-  new (createModel(mainFn))(init);
 
 describe('Hooks API', () => {
   test('should able to create computed fields', () => {
-    const instance = createInstance(
-      init => {
-        // Basic fields
-        const [firstName, setFirstName] = useState(init.firstName || '');
-        const [lastName, setLastName] = useState(init.lastName || '');
+    const instance = createInstance({ firstName: 'John', lastName: 'Doe' }, input => {
+      // Basic fields
+      const [firstName, setFirstName] = useState(input.firstName || '');
+      const [lastName, setLastName] = useState(input.lastName || '');
 
-        // Computed field
-        const name = useMemo(() => `${firstName} ${lastName}`, [firstName, lastName]);
-        const setName = useCallback((newName: string) => {
-          const [newFirstName, newLastName] = newName.split(' ');
-          setFirstName(newFirstName);
-          setLastName(newLastName);
-        }, []);
+      // Computed field
+      const name = useMemo(() => `${firstName} ${lastName}`, [firstName, lastName]);
+      const setName = useCallback((newName: string) => {
+        const [newFirstName, newLastName] = newName.split(' ');
+        setFirstName(newFirstName);
+        setLastName(newLastName);
+      }, []);
 
-        // Export public fields and methods - they are read only
-        return {
-          name,
-          firstName,
-          lastName,
-          setName,
-        };
-      },
-      { firstName: 'John', lastName: 'Doe' },
-    );
+      // Export public fields and methods - they are read only
+      return {
+        name,
+        firstName,
+        lastName,
+        setName,
+      };
+    });
 
     expect(instance).toHaveProperty('name', 'John Doe');
 

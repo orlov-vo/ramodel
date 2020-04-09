@@ -4,6 +4,7 @@
 
 - Model
   - [`createModel`](#createmodel)
+  - [`update`](#update)
   - [`destroy`](#destroy)
 - Lenses
   - [`makeLense`](#makelense)
@@ -29,11 +30,38 @@ const Model = createModel((props) => {
   return {
     // Public methods and properties
     ...
-  }
-})
+  };
+});
 
 // Create an instance of Model with passwed props
-const modelInstance = new Model(props)
+const modelInstance = new Model(props);
+```
+
+If you want skip creating model and fast create needed instance you can use this shortcut:
+
+```js
+const modelInstance = createInstance(input, mainFn);
+```
+
+## `update`
+
+```js
+update(modelInstance, newInput);
+```
+
+Update input in the model and re-run main function
+
+```js
+const User = createModel(({ firstName, lastName }) => {
+  return { name: `${firstName} ${lastName}` };
+});
+
+const john = new User({ firstName: 'John', lastName: 'Doe' });
+console.log(john.name); // => 'John Doe'
+
+// Update input and re-run main function in model
+update(john, { firstName: 'Jesica', lastName: 'Brown' });
+console.log(john.name); // => 'Jesica Brown'
 ```
 
 ## `destroy`

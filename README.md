@@ -40,14 +40,14 @@ interface CarProps {
   fuelConsumption: number;
 }
 
-const Car = createModel((init: CarProps) => {
-  const [fuelQuantity, setFuelQuantity] = useState(init.fuelQuantity);
+const Car = createModel((props: CarProps) => {
+  const [fuelQuantity, setFuelQuantity] = useState(props.fuelQuantity);
 
   useEffect(() => {
     const timerId = setTimeout(() => {
       setFuelQuantity(value => {
         if (value > 0) {
-          return value - init.fuelConsumption;
+          return value - props.fuelConsumption;
         }
 
         console.log("Car's got empty tank!");
@@ -78,6 +78,7 @@ setTimeout(() => {
 - [`ramodel`](docs/api-main.md)
   - Model
     - [`createModel`](docs/api-main.md#createmodel)
+    - [`update`](docs/api-main.md#update)
     - [`destroy`](docs/api-main.md#destroy)
   - Lenses
     - [`makeLense`](docs/api-main.md#makelense)

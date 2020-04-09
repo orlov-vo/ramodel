@@ -1,16 +1,15 @@
-import { SCHEDULER, RESULT, EVENT_EMITTER } from './symbols';
+import { SCHEDULER, INPUT, RESULT, EVENT_EMITTER } from './symbols';
+import { EVENT_CHANGE, EVENT_UPDATE_INPUT } from './events';
 import { BaseModel } from './types';
 import { Scheduler } from './scheduler';
 import { notify } from './lense';
 import { EventEmitter, createEventEmitter } from './eventEmitter';
 
-type Interface<Init extends object, Public extends object> = Public & BaseModel<Init, Public>;
+type Interface<Input extends object, Public extends object> = Public & BaseModel<Input, Public>;
 
-interface ModelClass<Init extends object, Public extends object> {
-  new (init: Init): Interface<Init, Public>;
+interface ModelClass<Input extends object, Public extends object> {
+  new (input: Input): Interface<Input, Public>;
 }
-
-const EVENT_CHANGE = 'change';
 
 /**
  * Create a new model
@@ -18,12 +17,15 @@ const EVENT_CHANGE = 'change';
  * @param run Function with Hooks should return the public state and methods
  * @returns Class for creating a model instance
  */
-export function createModel<Init extends object, Public extends object>(
-  run: (init: Init) => Public,
-): ModelClass<Init, Public> {
-  class Model implements BaseModel<Init, Public> {
+export function createModel<Input extends object, Public extends object>(
+  run: (input: Input) => Public,
+): ModelClass<Input, Public> {
+  class Model implements BaseModel<Input, Public> {
     /** Connected scheduler */
     [SCHEDULER]: Scheduler<typeof run, (result: Public) => void, this>;
+
+    /** Input properties */
+    [INPUT]: Input;
 
     /** Public state and methods */
     [RESULT]: Public | null;
@@ -31,7 +33,8 @@ export function createModel<Init extends object, Public extends object>(
     /** Event emitter */
     [EVENT_EMITTER]: EventEmitter;
 
-    constructor(init: Init) {
+    constructor(input: Input) {
+      this[INPUT] = input;
       this[RESULT] = null;
       this[EVENT_EMITTER] = createEventEmitter();
 
@@ -41,10 +44,18 @@ export function createModel<Init extends object, Public extends object>(
         this[EVENT_EMITTER].emit(EVENT_CHANGE, this[RESULT]);
       };
 
+      const onRun = () => run(this[INPUT]);
+
       // Create and connect scheduler to the instance
-      const scheduler = new Scheduler(run.bind(this, init), onCommit, this);
+      const scheduler = new Scheduler(onRun, onCommit, this);
       this[SCHEDULER] = scheduler;
       scheduler.update();
+
+      // Subscribe on updates from `update` method
+      this[EVENT_EMITTER].on(EVENT_UPDATE_INPUT, (newInput: Input): void => {
+        this[INPUT] = newInput;
+        scheduler.update();
+      });
 
       // Return reference to proxy-object.
       // It's needed for passing properties and making them read-only in the instance
@@ -93,5 +104,5 @@ export function createModel<Init extends object, Public extends object>(
     }
   }
 
-  return Model as ModelClass<Init, Public>;
+  return Model as ModelClass<Input, Public>;
 }
