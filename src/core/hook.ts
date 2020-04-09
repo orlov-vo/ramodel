@@ -1,5 +1,5 @@
 import { HOOK } from './symbols';
-import { current, notify } from './stateInterface';
+import { notify } from './stateInterface';
 import { State } from './state';
 
 export abstract class Hook<P extends unknown[] = unknown[], R = unknown, H = unknown> {
@@ -22,11 +22,16 @@ interface CustomHook<P extends unknown[] = unknown[], R = unknown, H = unknown> 
 }
 
 function use<P extends unknown[], R, H = unknown>(HookClass: CustomHook<P, R, H>, ...args: P): R {
-  const id = notify();
-  const hooks = current![HOOK];
+  const { id, state } = notify();
+
+  if (!state) {
+    throw new Error('Use hooks only inside models');
+  }
+
+  const hooks = state[HOOK];
   let currentHook = hooks.get(id) as Hook<P, R, H> | undefined;
   if (!currentHook) {
-    currentHook = new HookClass(id, current as State<H>, ...args);
+    currentHook = new HookClass(id, state as State<H>, ...args);
     hooks.set(id, currentHook);
   }
 
