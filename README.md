@@ -2,7 +2,7 @@
 
 Awesome framework for creating reactive & flexible models with Hooks API.
 
-[API References](docs/README.md) •
+[API References](README.md#apireferences) •
 [Demo TodoMVC example](https://codesandbox.io/s/ramodel-demo-todo-otcd7)
 
 - **Easy to learn.** It has the same [React Hooks API](https://reactjs.org/docs/hooks-reference.html)
@@ -72,6 +72,28 @@ setTimeout(() => {
   destroy(jeep);
 }, 3500);
 ```
+
+## API References
+
+- [`ramodel`](docs/api-main.md)
+  - Model
+    - [`createModel`](docs/api-main.md#createmodel)
+    - [`destroy`](docs/api-main.md#destroy)
+  - Lenses
+    - [`makeLense`](docs/api-main.md#makelense)
+    - [`combineLenses`](docs/api-main.md#combinelenses)
+    - [`watch`](docs/api-main.md#watch)
+  - Helpers
+    - [`get`](docs/api-main.md#get)
+- [`ramodel/hooks`](docs/api-hooks.md)
+  - Basic Hooks
+    - [`useState`](docs/api-hooks.md#usestate)
+    - [`useEffect`](docs/api-hooks.md#useeffect)
+  - Additional Hooks
+    - [`useReducer`](docs/api-hooks.md#usereducer)
+    - [`useMemo`](docs/api-hooks.md#usememo)
+    - [`useCallback`](docs/api-hooks.md#usecallback)
+    - [`useRef`](docs/api-hooks.md#useref)
 
 ## Thanks
 
