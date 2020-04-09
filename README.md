@@ -2,7 +2,7 @@
 
 Awesome framework for creating reactive & flexible models with Hooks API.
 
-[API References](README.md#apireferences) •
+[API References](#api-references) •
 [Demo TodoMVC example](https://codesandbox.io/s/ramodel-demo-todo-otcd7)
 
 - **Easy to learn.** It has the same [React Hooks API](https://reactjs.org/docs/hooks-reference.html)
