@@ -1,5 +1,5 @@
-import { createInstance } from './core/createInstance';
-import { useState, useMemo, useCallback } from './hooks';
+import { createInstance } from '../core/createInstance';
+import { useState, useMemo, useCallback } from './mod';
 
 describe('Hooks API', () => {
   test('should able to create computed fields', () => {

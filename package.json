@@ -7,8 +7,8 @@
     "hooks",
     "model"
   ],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/core/mod.js",
+  "types": "dist/core/mod.d.ts",
   "author": "Vladislav Orlov <me@orlov-vo.ru>",
   "homepage": "https://github.com/orlov-vo/ramodel#readme",
   "repository": "github:orlov-vo/ramodel",
@@ -22,7 +22,8 @@
     "hooks/**/*"
   ],
   "scripts": {
-    "build": "tsc",
+    "clean": "rimraf dist",
+    "build": "yarn clean && tsc",
     "test": "jest",
     "lint": "eslint src --ext .ts,.tsx",
     "format": "prettier --write \"src/**/*.ts\"",
@@ -47,11 +48,13 @@
     "husky": "^4.2.3",
     "jest": "^25.1.0",
     "prettier": "^1.19.1",
+    "rimraf": "^3.0.2",
     "ts-jest": "^25.2.1",
     "typescript": "^3.8.3"
   },
   "dependencies": {
     "idx": "^2.5.6",
-    "memoize-one": "^5.1.1"
+    "memoize-one": "^5.1.1",
+    "nanoid": "^3.1.3"
   }
 }

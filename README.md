@@ -95,6 +95,10 @@ setTimeout(() => {
     - [`useMemo`](#usememo)
     - [`useCallback`](#usecallback)
     - [`useRef`](#useref)
+- `ramodel/remote`
+  - Web Worker
+    - [`connectWorker`](#connectworker)
+    - [`expose`](#expose)
 
 ### `createModel`
 
@@ -466,6 +470,32 @@ const FormObserver = createModel(({ subscribe }) => {
 This works because `useRef()` creates a plain JavaScript object. The only difference between `useRef()` and creating a `{current: ...}` object yourself is that useRef will give you the same ref object on every update.
 
 Keep in mind that `useRef` doesn’t notify you when its content changes. Mutating the `.current` property doesn’t cause a re-update like `useState`.
+
+### `connectWorker`
+
+```js
+// Main thread
+import { connectWorker } from 'ramodel/remote';
+
+async function main() {
+  const worker = new Worker('worker.js', { type: 'module' });
+  const remoteWorld = connectWorker(worker);
+
+  const myRemoteModel = await remoteWorld.get('my-model');
+
+  // Now you can use `myRemoteModel` like local model
+}
+```
+
+### `expose`
+
+```js
+// Worker thread
+import { expose } from 'ramodel/remote/worker';
+
+const world = expose();
+world.set('my-model', myLocalModel);
+```
 
 ## Thanks
 
