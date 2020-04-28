@@ -1,24 +1,24 @@
 type Options = {
-  onLoad: <T>(modelName: string) => Promise<T>;
+  onLoad: <T>(exportName: string) => Promise<T>;
 };
 
 export class RemoteWorld {
   options: Options;
 
-  models: Record<string, unknown> = {};
+  dwellers: Record<string, unknown> = {};
 
   constructor(options: Options) {
     this.options = options;
   }
 
   // TODO: need wrap result of functions in T to Promise<...>
-  async get<T>(modelName: string): Promise<T> {
-    if (this.models[modelName]) {
-      return this.models[modelName] as T;
+  async get<T>(exportName: string): Promise<T> {
+    if (this.dwellers[exportName]) {
+      return this.dwellers[exportName] as T;
     }
 
-    const model: T = await this.options.onLoad(modelName);
-    this.models[modelName] = model;
+    const model: T = await this.options.onLoad(exportName);
+    this.dwellers[exportName] = model;
 
     return model;
   }

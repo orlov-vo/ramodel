@@ -1,5 +1,4 @@
-const EXPORT_MODEL = 'EXPORT_MODEL' as const;
-const EXPORT_FUNCTION = 'EXPORT_FUNCTION' as const;
+import { EXPORT_MODEL, EXPORT_FUNCTION } from './constants';
 
 function updateValuesInObject(obj: object, modificator: (value: unknown) => unknown): object {
   return Object.keys(obj).reduce((acc, key) => {

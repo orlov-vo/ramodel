@@ -1,23 +1,28 @@
+import { createModel, update } from '../core/mod';
+import { onDestroy } from '../core/destroy';
 import { RemoteWorld } from './RemoteWorld';
 import { deserialize } from './deserialize';
-import { createModel, update } from '../core/mod';
 import { GET_MODEL, CALL_FUNCTION, SUBSCRIBE_UPDATES } from './constants';
 
-const RemoteModel = createModel(data => data);
+class RemoteModel extends createModel(data => data) {}
 
 type ExportId = number | string;
 type Resolver = (value: any) => void;
 
 type Message<T extends string, Q, P> = { type: T; query: Q; payload: P };
 
-// TODO: need to add ability to use SharedWorker here also
-// @see https://developer.mozilla.org/en-US/docs/Web/API/SharedWorker
-export function connectWorker(worker: Worker) {
+export function connectWorker(worker: Worker | MessagePort) {
   const gettingModelResolvers: Record<string, Resolver> = {};
   const callsFunctionsResolvers: Map<ExportId, Resolver> = new Map();
 
-  // TODO: on destroy remove updates and unsubscribe
-  const importedModels = new Map();
+  const importedModels: Map<ExportId, RemoteModel> = new Map();
+  const importedModelsExportIds: WeakMap<RemoteModel, ExportId> = new WeakMap();
+
+  onDestroy('model', model => {
+    const exportId = importedModelsExportIds.get(model);
+    if (exportId == null) return;
+    importedModels.delete(exportId);
+  });
 
   const deserializeOptions = {
     handleModel: (exportId: ExportId, data: object) => {
@@ -29,6 +34,7 @@ export function connectWorker(worker: Worker) {
 
       const newInstance = new RemoteModel(data);
       importedModels.set(exportId, newInstance);
+      importedModelsExportIds.set(newInstance, exportId);
 
       worker.postMessage({
         type: SUBSCRIBE_UPDATES,
@@ -90,7 +96,8 @@ export function connectWorker(worker: Worker) {
     [SUBSCRIBE_UPDATES]: onSubscribeUpdates,
   } as const;
 
-  worker.addEventListener('message', event => {
+  worker.addEventListener('message', (event: Event) => {
+    if (!(event instanceof MessageEvent)) return;
     const { type, error } = event.data;
 
     if (error) {

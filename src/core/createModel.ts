@@ -4,6 +4,7 @@ import { BaseModel } from './types';
 import { Scheduler } from './scheduler';
 import { notify } from './lense';
 import { EventEmitter, createEventEmitter } from './eventEmitter';
+import { onDestroy } from './destroy';
 
 type Interface<Input extends object, Public extends object> = Public & BaseModel<Input, Public>;
 
@@ -106,3 +107,8 @@ export function createModel<Input extends object, Public extends object>(
 
   return Model as ModelClass<Input, Public>;
 }
+
+onDestroy('model', instance => {
+  instance[SCHEDULER].teardown();
+  instance[RESULT] = null; // eslint-disable-line no-param-reassign
+});

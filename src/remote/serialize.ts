@@ -1,8 +1,6 @@
-import { RESULT } from '../core/symbols';
+import { RESULT, SCHEDULER } from '../core/symbols';
 import { isModel } from '../core/isModel';
-
-const EXPORT_MODEL = 'EXPORT_MODEL' as const;
-const EXPORT_FUNCTION = 'EXPORT_FUNCTION' as const;
+import { EXPORT_MODEL, EXPORT_FUNCTION } from './constants';
 
 function updateValuesInObject(obj: object, modificator: (value: unknown) => unknown): object {
   return Object.keys(obj).reduce((acc, key) => {
@@ -26,10 +24,13 @@ export function serialize(data: unknown, options: SerializeOptions): unknown {
     if (isModel(data)) {
       const { getExportId } = options;
 
+      data[SCHEDULER].flush();
+      const result = updateValuesInObject(data[RESULT], item => serialize(item, options));
+
       return {
         ramodel: EXPORT_MODEL,
         exportId: getExportId(data),
-        result: updateValuesInObject(data[RESULT], item => serialize(item, options)),
+        result,
       };
     }
 

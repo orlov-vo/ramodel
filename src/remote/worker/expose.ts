@@ -1,28 +1,31 @@
 /// <reference lib="webworker" />
 import { nanoid } from 'nanoid/non-secure';
-import { LocalWorld } from '../LocalWorld';
-import { serialize } from '../serialize';
 import { EVENT_EMITTER } from '../../core/symbols';
 import { EVENT_CHANGE } from '../../core/events';
 import { BaseModel } from '../../core/types';
 import { isModel } from '../../core/isModel';
+import { onDestroy, destroy } from '../../core/destroy';
 import { GET_MODEL, CALL_FUNCTION, SUBSCRIBE_UPDATES, UNSUBSCRIBE_UPDATES } from '../constants';
+import { LocalWorld } from '../LocalWorld';
+import { serialize } from '../serialize';
 
 type ExportId = number | string;
 type UnsubscribeFn = () => void;
 
 type Message<T extends string, Q, P> = { type: T; query: Q; payload: P };
 
-type GetModelOptions = { models: Record<string, unknown>; getExportId: (instance: object) => ExportId };
+type GetModelOptions = { dwellers: Record<string, unknown>; getExportId: (instance: object) => ExportId };
 
-const onGetModel = ({ models, getExportId }: GetModelOptions) => (message: Message<typeof GET_MODEL, string, void>) => {
-  const { query: modelName } = message;
-  const model = models[modelName];
+const onGetModel = ({ dwellers, getExportId }: GetModelOptions) => (
+  message: Message<typeof GET_MODEL, string, void>,
+) => {
+  const { query } = message;
+  const model = dwellers[query];
 
   if (model == null) {
     postMessage({
       type: GET_MODEL,
-      query: modelName,
+      query,
       error: { message: "Model isn't found" },
     });
     return;
@@ -30,7 +33,7 @@ const onGetModel = ({ models, getExportId }: GetModelOptions) => (message: Messa
 
   postMessage({
     type: GET_MODEL,
-    query: modelName,
+    query,
     payload: serialize(model, { getExportId }),
   });
 };
@@ -123,17 +126,31 @@ const onUnsubscribeUpdates = ({ getUnsubscribe, unregisterUnsubscribe }: Unsubsc
 
 export function expose(): LocalWorld {
   const localWorld = new LocalWorld({
-    onSet: (_exportName: string, _value: unknown) => {
-      // TODO: need to clear localWorld[exportName] on override case
+    onSet: (exportName: string, _value: unknown) => {
+      destroy(localWorld.dwellers[exportName]);
     },
   });
 
-  // TODO: need remove refs on model destroy
   const exportedModels: Map<ExportId, BaseModel> = new Map();
   const exportedFunctions: Map<ExportId, Function> = new Map();
   const unsubscribes: Map<ExportId, UnsubscribeFn> = new Map();
 
   const exportedInstances: WeakMap<object, ExportId> = new WeakMap();
+
+  onDestroy('model', model => {
+    const exportId = exportedInstances.get(model);
+    if (exportId == null) return;
+    exportedModels.delete(exportId);
+  });
+
+  onDestroy('function', model => {
+    const exportId = exportedInstances.get(model);
+    if (exportId == null) return;
+    exportedFunctions.delete(exportId);
+    // TODO: need to call unsubscribe here?
+    unsubscribes.delete(exportId);
+  });
+
   const getExportId = (instance: object) => {
     const cached = exportedInstances.get(instance);
 
@@ -154,7 +171,7 @@ export function expose(): LocalWorld {
   };
 
   const messageHandlers = {
-    [GET_MODEL]: onGetModel({ models: localWorld.models, getExportId }),
+    [GET_MODEL]: onGetModel({ dwellers: localWorld.dwellers, getExportId }),
     [CALL_FUNCTION]: onCallFunction({ getExportedFunction: id => exportedFunctions.get(id), getExportId }),
     [SUBSCRIBE_UPDATES]: onSubscribeUpdates({
       getExportedModel: id => exportedModels.get(id),

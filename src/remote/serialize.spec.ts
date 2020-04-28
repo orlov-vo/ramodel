@@ -55,7 +55,7 @@ describe('serialize', () => {
   });
 
   test('should serialize models', () => {
-    const instance = createInstance({}, () => ({ foo: () => (a: number, b: number) => `${a} + ${b}`, bar: 'test' }));
+    const instance = createInstance({}, () => ({ foo: (a: number, b: number) => `${a} + ${b}`, bar: 'test' }));
     const result = serialize(instance, { getExportId });
 
     expect(result).toEqual({

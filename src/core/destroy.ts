@@ -1,5 +1,9 @@
-import { SCHEDULER, RESULT } from './symbols';
 import { isModel } from './isModel';
+import { createEventEmitter } from './eventEmitter';
+
+const bus = createEventEmitter();
+
+export const onDestroy = bus.on;
 
 /**
  * Shutdown all side effects and clean the state in models instances
@@ -7,8 +11,17 @@ import { isModel } from './isModel';
  * @param instances List of instances
  */
 export function destroy(...instances: unknown[]) {
-  instances.filter(isModel).forEach(instance => {
-    instance[SCHEDULER].teardown();
-    instance[RESULT] = null; // eslint-disable-line no-param-reassign
+  instances.forEach(instance => {
+    if (isModel(instance)) {
+      bus.emit('model', instance);
+    } else if (typeof instance === 'function') {
+      bus.emit('function', instance);
+    } else if (Array.isArray(instance)) {
+      instance.forEach(i => destroy(i));
+      bus.emit('array', instance);
+    } else if (typeof instance === 'object' && instance != null) {
+      Object.values(instance).forEach(i => destroy(i));
+      bus.emit('object', instance);
+    }
   });
 }

@@ -1,3 +1,5 @@
+import { onDestroy } from '../core/destroy';
+
 type Options = {
   onSet?: (exportName: string, value: unknown) => void;
 };
@@ -5,7 +7,7 @@ type Options = {
 export class LocalWorld {
   options: Options;
 
-  models: Record<string, unknown> = {};
+  dwellers: Record<string, unknown> = {};
 
   constructor(options: Options = {}) {
     this.options = options;
@@ -16,8 +18,17 @@ export class LocalWorld {
       this.options.onSet(exportName, value);
     }
 
-    // TODO: need remove model from the list on destroy
-    this.models[exportName] = value;
+    this.dwellers[exportName] = value;
+
+    const remove = (instance: unknown) => {
+      if (instance !== value) return;
+      delete this.dwellers[exportName];
+    };
+
+    onDestroy('function', remove);
+    onDestroy('model', remove);
+    onDestroy('array', remove);
+    onDestroy('object', remove);
 
     return this;
   }
