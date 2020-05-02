@@ -12,7 +12,7 @@ export interface Container<Input, Public> {
 }
 
 export interface BaseModel<Input extends object = any, Public extends object = any> {
-  [SCHEDULER]: Scheduler<(input: Input) => Public, (result: Public) => void, BaseModel<Input, Public>>;
+  [SCHEDULER]: Scheduler<(input: Input) => Public, (result: Public) => void, BaseModel<Input, Public>> | null;
   [INPUT]: Input;
   [RESULT]: Public | null;
   [EVENT_EMITTER]: EventEmitter;

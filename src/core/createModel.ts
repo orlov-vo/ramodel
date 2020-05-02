@@ -106,9 +106,13 @@ export function createModel<Input extends object, Public extends object>(
 
         get(target, key, _reciver) {
           // Always provide original properties if them exists
-          const original = (target as any)[key];
-          if (original) {
-            return original;
+          if (key in target) {
+            return (target as any)[key];
+          }
+
+          // If instance is destroyed forgot about getting values from result
+          if (target[SCHEDULER] == null) {
+            return undefined;
           }
 
           // Flush all task queue and return propery from result
@@ -125,9 +129,15 @@ export function createModel<Input extends object, Public extends object>(
           return undefined;
         },
 
-        set(target, key, _value, _reciver) {
+        set(target, key, value, _reciver) {
           // Allow writing only to internal fields in the instance
-          return key in target;
+          if (key in target) {
+            // eslint-disable-next-line no-param-reassign
+            (target as any)[key] = value;
+            return true;
+          }
+
+          return false;
         },
 
         deleteProperty(_target, _key) {
@@ -136,6 +146,10 @@ export function createModel<Input extends object, Public extends object>(
         },
 
         ownKeys(target) {
+          if (target[SCHEDULER] == null) {
+            return [];
+          }
+
           // Flush all task queue and return list of property keys from result
           target[SCHEDULER].flush();
           return Object.keys(target[RESULT] || {});
@@ -150,6 +164,7 @@ export function createModel<Input extends object, Public extends object>(
 onDestroy('model', instance => {
   /* eslint-disable no-param-reassign */
   instance[SCHEDULER].teardown();
+  instance[SCHEDULER] = null;
   instance[RESULT] = null;
   instance[PARENT] = null;
   instance[CHILDREN] = [];

@@ -23,8 +23,13 @@ export function serialize(data: unknown, options: SerializeOptions): unknown {
   if (typeof data === 'object' && data != null) {
     if (isModel(data)) {
       const { getExportId } = options;
+      const scheduler = data[SCHEDULER];
 
-      data[SCHEDULER].flush();
+      if (scheduler == null) {
+        throw new Error("Couldn't serialize destoyed model instance");
+      }
+
+      scheduler.flush();
       const result = updateValuesInObject(data[RESULT], item => serialize(item, options));
 
       return {

@@ -19,8 +19,10 @@ export function createContext<T>(defaultValue: T): Context<T> {
   const deepSchedulerUpdate = (instance: BaseModel) => {
     instance[CHILDREN].forEach(child => deepSchedulerUpdate(child));
 
-    if (usedIn.has(instance[SCHEDULER])) {
-      instance[SCHEDULER].update();
+    const scheduler = instance[SCHEDULER];
+
+    if (scheduler != null && usedIn.has(scheduler)) {
+      scheduler.update();
     }
   };
 
@@ -45,7 +47,13 @@ export function createContext<T>(defaultValue: T): Context<T> {
       deepSchedulerUpdate(instance);
     },
     use: (instance: BaseModel): void => {
-      usedIn.add(instance[SCHEDULER]);
+      const scheduler = instance[SCHEDULER];
+
+      if (scheduler == null) {
+        throw new Error("Couldn't use context for destroyed instance");
+      }
+
+      usedIn.add(scheduler);
     },
   };
 

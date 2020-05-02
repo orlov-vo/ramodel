@@ -41,6 +41,8 @@ export class Scheduler<R extends GenericFunction, C extends GenericFunction, H> 
 
   state: State<H>;
 
+  _isDestoyed: boolean = false;
+
   _flushMode: boolean = false;
 
   _updateQueued: boolean = false;
@@ -53,6 +55,8 @@ export class Scheduler<R extends GenericFunction, C extends GenericFunction, H> 
   }
 
   flush() {
+    if (this._isDestoyed) return;
+
     this._flushMode = true;
     read.flush();
     write.flush();
@@ -63,7 +67,9 @@ export class Scheduler<R extends GenericFunction, C extends GenericFunction, H> 
    * Async version for update instance
    */
   update(): void {
+    if (this._isDestoyed) return;
     if (this._updateQueued) return;
+
     read(() => {
       // Update phase
       const result = this.state.run(this.runFn);
@@ -90,5 +96,6 @@ export class Scheduler<R extends GenericFunction, C extends GenericFunction, H> 
 
   teardown(): void {
     this.state.teardown();
+    this._isDestoyed = true;
   }
 }
