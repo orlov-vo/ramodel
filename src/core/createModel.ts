@@ -1,5 +1,6 @@
-import { SCHEDULER, INPUT, RESULT, EVENT_EMITTER } from './symbols';
+import { SCHEDULER, INPUT, RESULT, EVENT_EMITTER, PARENT, CHILDREN, CONTEXTS } from './symbols';
 import { EVENT_CHANGE, EVENT_UPDATE_INPUT } from './events';
+import { Context } from './createContext';
 import { BaseModel } from './types';
 import { Scheduler } from './scheduler';
 import { notify } from './lense';
@@ -11,6 +12,14 @@ type Interface<Input extends object, Public extends object> = Public & BaseModel
 interface ModelClass<Input extends object, Public extends object> {
   new (input: Input): Interface<Input, Public>;
 }
+
+const INIT_EVENT = 'init' as const;
+
+const bus = createEventEmitter();
+
+export const onInit: (handler: (instance: BaseModel) => void) => () => void = bus.on.bind(null, INIT_EVENT);
+
+let currentModelInExecuting: BaseModel | null = null;
 
 /**
  * Create a new model
@@ -34,10 +43,22 @@ export function createModel<Input extends object, Public extends object>(
     /** Event emitter */
     [EVENT_EMITTER]: EventEmitter;
 
+    /** Parent model */
+    [PARENT]: BaseModel | null;
+
+    /** Children models */
+    [CHILDREN]: BaseModel[];
+
+    /** Contexts */
+    [CONTEXTS]: Map<Context<unknown>, unknown>;
+
     constructor(input: Input) {
       this[INPUT] = input;
       this[RESULT] = null;
       this[EVENT_EMITTER] = createEventEmitter();
+      this[PARENT] = currentModelInExecuting;
+      this[CHILDREN] = [];
+      this[CONTEXTS] = new Map();
 
       /** Handler for commit phase */
       const onCommit = (result: Public): void => {
@@ -45,7 +66,16 @@ export function createModel<Input extends object, Public extends object>(
         this[EVENT_EMITTER].emit(EVENT_CHANGE, this[RESULT]);
       };
 
-      const onRun = () => run(this[INPUT]);
+      /** Handler for reading phase */
+      const onRun = () => {
+        // Set current instance to `currentModelInExecuting` only in run method
+        const lastCurrentModelInExecuting = currentModelInExecuting;
+        currentModelInExecuting = this;
+        const result = run(this[INPUT]);
+        currentModelInExecuting = lastCurrentModelInExecuting;
+
+        return result;
+      };
 
       // Create and connect scheduler to the instance
       const scheduler = new Scheduler(onRun, onCommit, this);
@@ -57,6 +87,15 @@ export function createModel<Input extends object, Public extends object>(
         this[INPUT] = newInput;
         scheduler.update();
       });
+
+      // Add this instance to the parent element
+      const parent = this[PARENT];
+      if (parent) {
+        parent[CHILDREN].push(this);
+      }
+
+      // Emit init event
+      bus.emit(INIT_EVENT, this);
 
       // Return reference to proxy-object.
       // It's needed for passing properties and making them read-only in the instance
@@ -109,6 +148,11 @@ export function createModel<Input extends object, Public extends object>(
 }
 
 onDestroy('model', instance => {
+  /* eslint-disable no-param-reassign */
   instance[SCHEDULER].teardown();
-  instance[RESULT] = null; // eslint-disable-line no-param-reassign
+  instance[RESULT] = null;
+  instance[PARENT] = null;
+  instance[CHILDREN] = [];
+  instance[CONTEXTS].clear();
+  /* eslint-enable */
 });

@@ -1,4 +1,5 @@
-import { SCHEDULER, INPUT, RESULT, EVENT_EMITTER } from './symbols';
+import { SCHEDULER, INPUT, RESULT, EVENT_EMITTER, PARENT, CHILDREN, CONTEXTS } from './symbols';
+import { Context } from './createContext';
 import { Scheduler } from './scheduler';
 import { EventEmitter } from './eventEmitter';
 
@@ -15,4 +16,7 @@ export interface BaseModel<Input extends object = any, Public extends object = a
   [INPUT]: Input;
   [RESULT]: Public | null;
   [EVENT_EMITTER]: EventEmitter;
+  [PARENT]: BaseModel | null;
+  [CHILDREN]: BaseModel[];
+  [CONTEXTS]: Map<Context<unknown>, unknown>;
 }

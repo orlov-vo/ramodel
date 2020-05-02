@@ -85,6 +85,7 @@ setTimeout(() => {
     - [`combineLenses`](#combinelenses)
     - [`watch`](#watch)
   - Helpers
+    - [`createContext`](#createcontext)
     - [`get`](#get)
 - `ramodel/hooks`
   - Basic Hooks
@@ -199,6 +200,39 @@ Watch for changes in models use lenses. The `handler` recive values extracted wi
 watch([lense], value => {
   console.log(value);
 });
+```
+
+### `createContext`
+
+```js
+import { createContext } from 'ramodel';
+
+const Context = createContext(defaultValue);
+```
+
+Creates a Context object.
+
+The `defaultValue` argument is only used when a model does not have a matching Context's value above it in the tree. This can be helpful for testing models in isolation without wrapping them. Note: passing `undefined` as a Context's value does not cause consuming models to use `defaultValue`.
+
+For provide value you can use `Context.withValue`:
+
+```js
+Context.withValue(newValue, () => {
+  // here you can create new model's instances
+  // they will get the `newValue` when we `useContext` hook
+});
+```
+
+You can dynamicly update the Context's value in instance and its children tree with `Context.updateValue`:
+
+```js
+Context.updateValue(instance, newValue);
+```
+
+Also you can delete the Context from instance with `Context.removeFrom`:
+
+```js
+Context.removeFrom(instance);
 ```
 
 ### `get`
