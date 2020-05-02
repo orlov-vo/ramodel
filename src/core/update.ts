@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 import { EVENT_EMITTER } from './symbols';
 import { EVENT_UPDATE_INPUT } from './events';
 import { BaseModel } from './types';

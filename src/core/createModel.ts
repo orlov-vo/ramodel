@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 import { SCHEDULER, INPUT, RESULT, EVENT_EMITTER, PARENT, CHILDREN, CONTEXTS } from './symbols';
 import { EVENT_CHANGE, EVENT_UPDATE_INPUT } from './events';
 import { Context } from './createContext';

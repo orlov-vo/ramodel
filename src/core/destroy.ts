@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 import { isModel } from './isModel';
 import { createEventEmitter } from './eventEmitter';
 

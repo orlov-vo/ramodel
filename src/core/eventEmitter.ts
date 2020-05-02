@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 type Handler = (...args: any[]) => unknown;
 type UnsubscribeFn = () => void;
 

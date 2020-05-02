@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 import { EXPORT_MODEL, EXPORT_FUNCTION } from './constants';
 
 function updateValuesInObject(obj: object, modificator: (value: unknown) => unknown): object {

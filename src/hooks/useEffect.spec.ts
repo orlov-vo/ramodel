@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 import { createInstance } from '../core/createInstance';
 import { destroy } from '../core/destroy';
 import { useState } from './useState';

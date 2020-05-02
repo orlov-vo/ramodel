@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 type Options = {
   onLoad: <T>(exportName: string) => Promise<T>;
 };

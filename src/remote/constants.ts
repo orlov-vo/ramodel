@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 export const GET_MODEL = 'GET_MODEL' as const;
 export const CALL_FUNCTION = 'CALL_FUNCTION' as const;
 export const SUBSCRIBE_UPDATES = 'SUBSCRIBE_UPDATES' as const;

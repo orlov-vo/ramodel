@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 import { createModel } from '../core/createModel';
 import { createInstance } from '../core/createInstance';
 import { createContext } from '../core/createContext';

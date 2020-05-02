@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 import { createModel, update } from '../core/mod';
 import { onDestroy } from '../core/destroy';
 import { RemoteWorld } from './RemoteWorld';

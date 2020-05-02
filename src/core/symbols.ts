@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 export const SCHEDULER = Symbol('ramodel.scheduler');
 export const INPUT = Symbol('ramodel.input');
 export const RESULT = Symbol('ramodel.result');

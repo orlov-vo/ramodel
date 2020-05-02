@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 import memoizeOne from 'memoize-one';
 import { EVENT_EMITTER } from './symbols';
 import { EVENT_CHANGE } from './events';

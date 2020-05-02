@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/indent */
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 import idx from 'idx';
 
 /**
@@ -22,6 +23,7 @@ type FunctionWithRequiredReturnType<T extends (...args: any[]) => any> = T exten
   ? (...args: A) => DeepRequired<R>
   : never;
 
+/* eslint-disable @typescript-eslint/indent */
 /**
  * DeepRequired
  * Required that works for deeply nested structure
@@ -33,6 +35,7 @@ type DeepRequired<T> = T extends any[]
   : T extends object
   ? DeepRequiredObject<T>
   : T;
+/* eslint-enable */
 
 export type Accessor<Input, Result> = (prop: NonNullable<DeepRequired<Input>>) => Result;
 

@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 import memoizeOne from 'memoize-one';
 import { BaseModel } from './types';
 import { get, Accessor } from './get';

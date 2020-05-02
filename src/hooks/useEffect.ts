@@ -1,3 +1,6 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+// Copyright 2018-2019 Matthew Phillips. All rights reserved. BSD 2-Clause license.
+
 import { VoidFunction } from '../core/types';
 import { EFFECTS } from '../core/symbols';
 import { Hook, hook } from '../core/hook';

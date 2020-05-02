@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 import { BaseModel } from './types';
 import { onInit } from './createModel';
 import { SCHEDULER, CONTEXTS, CHILDREN } from './symbols';

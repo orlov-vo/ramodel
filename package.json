@@ -9,12 +9,11 @@
   ],
   "main": "dist/core/mod.js",
   "types": "dist/core/mod.d.ts",
-  "author": "Vladislav Orlov <me@orlov-vo.ru>",
+  "author": "the RaModel authors",
   "homepage": "https://github.com/orlov-vo/ramodel#readme",
   "repository": "github:orlov-vo/ramodel",
   "bugs": {
-    "url": "https://github.com/orlov-vo/ramodel/issues",
-    "email": "me@orlov-vo.ru"
+    "url": "https://github.com/orlov-vo/ramodel/issues"
   },
   "license": "MIT",
   "files": [

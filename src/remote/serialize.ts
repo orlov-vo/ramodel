@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 import { RESULT, SCHEDULER } from '../core/symbols';
 import { isModel } from '../core/isModel';
 import { EXPORT_MODEL, EXPORT_FUNCTION } from './constants';

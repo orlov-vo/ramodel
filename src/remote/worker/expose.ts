@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 /// <reference lib="webworker" />
 import { nanoid } from 'nanoid/non-secure';
 import { EVENT_EMITTER } from '../../core/symbols';

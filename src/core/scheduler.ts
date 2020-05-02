@@ -1,3 +1,6 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+// Copyright 2018-2019 Matthew Phillips. All rights reserved. BSD 2-Clause license.
+
 import { VoidFunction, GenericFunction } from './types';
 import { State } from './state';
 import { createEventEmitter } from './eventEmitter';

@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 import { hook, Hook } from '../core/hook';
 import { State } from '../core/state';
 import { Context } from '../core/createContext';
