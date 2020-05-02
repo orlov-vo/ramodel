@@ -4,7 +4,6 @@ import { createContext } from '../core/createContext';
 import { update } from '../core/update';
 import { useMemo } from './useMemo';
 import { useContext } from './useContext';
-import { useEffect } from './useEffect';
 
 describe('useContext', () => {
   const Context = createContext('foo');
@@ -62,11 +61,9 @@ describe('useContext', () => {
   test('should update value via Context.updateValue in model', () => {
     const instance = createInstance({ isNeedUpdate: false }, ({ isNeedUpdate }) => {
       const inner = useMemo(() => Context.withValue('bar', () => new Model({})), []);
-      useEffect(() => {
-        if (isNeedUpdate) {
-          Context.updateValue(inner, 'baz');
-        }
-      }, [isNeedUpdate]);
+      if (isNeedUpdate) {
+        Context.updateValue(inner, 'baz');
+      }
 
       return { inner };
     });
