@@ -23,15 +23,13 @@ export const useState = hook(
     }
 
     updater(value: NewState<T>): void {
-      if (typeof value === 'function') {
-        const updaterFn = value as (previousState?: T) => T;
-        const [previousValue] = this.args;
-        this.makeArgs(updaterFn(previousValue));
-      } else {
-        this.makeArgs(value);
-      }
+      const [previousValue] = this.args;
+      const newValue = typeof value === 'function' ? (value as (previousState?: T) => T)(previousValue) : value;
 
-      this.state.update();
+      if (newValue !== previousValue) {
+        this.makeArgs(newValue);
+        this.state.update();
+      }
     }
 
     makeArgs(value: T): void {

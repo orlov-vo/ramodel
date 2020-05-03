@@ -7,8 +7,8 @@ import { useEffect } from './useEffect';
 
 const defer = Promise.resolve().then.bind(Promise.resolve());
 
-describe('useState', () => {
-  test('should accept initial state', async () => {
+describe('useEffect', () => {
+  test('handler should be properly called on every change in values', async () => {
     const onStart = jest.fn();
     const onEnd = jest.fn();
 

@@ -2,23 +2,33 @@
 
 import { State } from './state';
 
-const current = {
-  id: 0,
-  state: null as State | null,
+type HookState = {
+  id: number;
+  state: State;
+  previous: HookState | null;
 };
 
+let current: HookState | null = null;
+
 export function setCurrent(state: State): void {
-  current.state = state;
+  const previous = current;
+  current = { id: 0, state, previous };
 }
 
 export function clear(): void {
-  current.id = 0;
-  current.state = null;
+  if (current == null) {
+    throw new Error("Couldn't clear hook state if you didn't call `setCurrent` before");
+  }
+
+  current = current.previous;
 }
 
-export function notify(): typeof current {
-  const { id } = current;
+export function notify(): { id: number; state: State } {
+  if (current == null) {
+    throw new Error("Couldn't notify hook state if you didn't call `setCurrent` before");
+  }
+
   current.id += 1;
 
-  return { ...current, id };
+  return current;
 }

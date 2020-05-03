@@ -18,7 +18,7 @@ export const useEffect = hook(
 
     _teardown!: VoidFunction | void;
 
-    constructor(id: number, state: State, _effect: Effect, _values: unknown[]) {
+    constructor(id: number, state: State, _effect: Effect, _values?: unknown[]) {
       super(id, state);
       state[EFFECTS].push(this);
     }

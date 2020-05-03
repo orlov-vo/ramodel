@@ -8,10 +8,11 @@ import { Scheduler } from './scheduler';
 import { notify } from './lense';
 import { EventEmitter, createEventEmitter } from './eventEmitter';
 import { onDestroy } from './destroy';
+import { shallowCompare } from './shallowCompare';
 
 type Interface<Input extends object, Public extends object> = Public & BaseModel<Input, Public>;
 
-interface ModelClass<Input extends object, Public extends object> {
+export interface ModelClass<Input extends object, Public extends object> {
   new (input: Input): Interface<Input, Public>;
 }
 
@@ -33,7 +34,7 @@ export function createModel<Input extends object, Public extends object>(
   run: (input: Input) => Public,
 ): ModelClass<Input, Public> {
   class Model implements BaseModel<Input, Public> {
-    /** Connected scheduler */
+    /** Connected scheduler (it can be `null` when instance is destroyed) */
     [SCHEDULER]: Scheduler<typeof run, (result: Public) => void, this>;
 
     /** Input properties */
@@ -86,8 +87,13 @@ export function createModel<Input extends object, Public extends object>(
 
       // Subscribe on updates from `update` method
       this[EVENT_EMITTER].on(EVENT_UPDATE_INPUT, (newInput: Input): void => {
+        const oldInput = this[INPUT];
         this[INPUT] = newInput;
-        scheduler.update();
+
+        // Run update if something in input has been changed
+        if (!shallowCompare(oldInput, newInput)) {
+          scheduler.update();
+        }
       });
 
       // Add this instance to the parent element
@@ -96,7 +102,7 @@ export function createModel<Input extends object, Public extends object>(
         parent[CHILDREN].push(this);
       }
 
-      // Emit init event
+      // Emit init event to all subscribers of `onInit`
       bus.emit(INIT_EVENT, this);
 
       // Return reference to proxy-object.
@@ -117,7 +123,7 @@ export function createModel<Input extends object, Public extends object>(
             return undefined;
           }
 
-          // Flush all task queue and return propery from result
+          // Flush all task queue and return property from result
           target[SCHEDULER].flush();
           const result = target[RESULT];
           if (result) {
@@ -164,6 +170,8 @@ export function createModel<Input extends object, Public extends object>(
 }
 
 onDestroy('model', instance => {
+  if (instance[SCHEDULER] == null) return;
+
   /* eslint-disable no-param-reassign */
   instance[SCHEDULER].teardown();
   instance[SCHEDULER] = null;

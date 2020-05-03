@@ -7,6 +7,12 @@ import { createEventEmitter } from './eventEmitter';
 
 type TaskBox = { task: VoidFunction | null };
 
+type Tasks = {
+  tasks: TaskBox[];
+  run(task: VoidFunction): void;
+  flush(): void;
+};
+
 const defer = Promise.resolve().then.bind(Promise.resolve());
 
 function flushTasks(tasks: TaskBox[]) {
@@ -49,6 +55,7 @@ function runner() {
 }
 
 const read = runner();
+const commit = runner();
 const write = runner();
 
 /**
@@ -63,13 +70,11 @@ export class Scheduler<R extends GenericFunction, C extends GenericFunction, H> 
 
   state: State<H>;
 
-  _isDestoyed: boolean = false;
+  _isDestroyed: boolean = false;
 
   _isInFlushMode: boolean = false;
 
-  _readTasks: TaskBox[] = [];
-
-  _writeTasks: TaskBox[] = [];
+  _tasks: Record<string, Tasks> = {};
 
   _isInUpdateQueued: boolean = false;
 
@@ -79,36 +84,36 @@ export class Scheduler<R extends GenericFunction, C extends GenericFunction, H> 
     this.host = host;
     this.state = new State(this.update.bind(this), host);
 
-    read.onFlush(() => {
-      this._readTasks = [];
-    });
-    write.onFlush(() => {
-      this._writeTasks = [];
-    });
-  }
+    Object.entries({ read, commit, write }).forEach(([name, run]) => {
+      const t = {
+        tasks: [] as TaskBox[],
+        run: (fn: VoidFunction) => {
+          const task = run(fn);
+          t.tasks.push(task);
+        },
+        flush: () => {
+          const { tasks } = t;
+          t.tasks = [];
+          flushTasks(tasks);
+        },
+      };
 
-  read(fn: VoidFunction) {
-    const task = read(fn);
-    this._readTasks.push(task);
-  }
+      this._tasks[name] = t;
 
-  write(fn: VoidFunction) {
-    const task = write(fn);
-    this._writeTasks.push(task);
+      run.onFlush(() => {
+        t.tasks = [];
+      });
+    });
   }
 
   flush() {
-    if (this._isDestoyed) return;
+    if (this._isDestroyed) return;
 
     this._isInFlushMode = true;
 
-    const readTasks = this._readTasks;
-    this._readTasks = [];
-    flushTasks(readTasks);
-
-    const writeTasks = this._writeTasks;
-    this._writeTasks = [];
-    flushTasks(writeTasks);
+    this._tasks.write.flush();
+    this._tasks.read.flush();
+    this._tasks.commit.flush();
 
     this._isInFlushMode = false;
   }
@@ -117,18 +122,18 @@ export class Scheduler<R extends GenericFunction, C extends GenericFunction, H> 
    * Async version for update instance
    */
   update(): void {
-    if (this._isDestoyed) return;
+    if (this._isDestroyed) return;
     if (this._isInUpdateQueued) return;
 
-    this.read(() => {
+    this._tasks.read.run(() => {
       // Update phase
       const result = this.state.run(this.runFn);
 
-      this.write(() => {
+      this._tasks.commit.run(() => {
         // Commit phase
         this.commitFn(result);
 
-        this.write(() => {
+        this._tasks.write.run(() => {
           // Effects phase
           this.state.runEffects();
         });
@@ -141,6 +146,6 @@ export class Scheduler<R extends GenericFunction, C extends GenericFunction, H> 
 
   teardown(): void {
     this.state.teardown();
-    this._isDestoyed = true;
+    this._isDestroyed = true;
   }
 }
