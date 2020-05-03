@@ -96,6 +96,7 @@ setTimeout(() => {
     - [`useMemo`](#usememo)
     - [`useCallback`](#usecallback)
     - [`useRef`](#useref)
+    - [`useLense`](#uselense)
 - `ramodel/remote`
   - Web Worker
     - [`connectWorker`](#connectworker)
@@ -504,6 +505,16 @@ const FormObserver = createModel(({ subscribe }) => {
 This works because `useRef()` creates a plain JavaScript object. The only difference between `useRef()` and creating a `{current: ...}` object yourself is that useRef will give you the same ref object on every update.
 
 Keep in mind that `useRef` doesn’t notify you when its content changes. Mutating the `.current` property doesn’t cause a re-update like `useState`.
+
+### `useLense`
+
+```js
+import { useLense } from 'ramodel/hooks';
+
+const value = useLense(lense);
+```
+
+With `useLense` hook you can get current value from the lense (which can created with [`makeLense`](#makelense) or [`combineLenses`](#combinelenses)) and all subsequent values ​​in updates.
 
 ### `connectWorker`
 
