@@ -6,8 +6,8 @@ import { get, Accessor } from './get';
 import { isModel } from './isModel';
 import { createEventEmitter } from './eventEmitter';
 
-export type Lense<R> = () => { models: BaseModel[]; result: R };
-export type ExtractResultFromLense<TLense> = TLense extends Lense<infer R> ? R : never;
+export type Lens<R> = () => { models: BaseModel[]; result: R };
+export type ExtractResultFromLens<TLens> = TLens extends Lens<infer R> ? R : never;
 
 type Handler<M> = (model: M, key: string | number | symbol, value: unknown) => unknown;
 
@@ -22,8 +22,8 @@ export function notify<M extends BaseModel>(model: M, key: string | number | sym
   eventEmitter.emit(EVENT_NAME, model, key, value);
 }
 
-export function makeLense<T extends BaseModel, R>(rootModel: T, selector: Accessor<T, R>): Lense<R> {
-  return function useLense() {
+export function createLens<T extends BaseModel, R>(rootModel: T, selector: Accessor<T, R>): Lens<R> {
+  return function useLens() {
     const models = new Set<BaseModel>();
 
     if (isModel(rootModel)) {
@@ -41,12 +41,12 @@ export function makeLense<T extends BaseModel, R>(rootModel: T, selector: Access
   };
 }
 
-type L<R> = Lense<R>;
+type L<R> = Lens<R>;
 
 export function combineLenses<
   Result,
   Lenses extends Record<string, L<any>>,
-  Results = { [key in keyof Lenses]: ExtractResultFromLense<Lenses[key]> }
+  Results = { [key in keyof Lenses]: ExtractResultFromLens<Lenses[key]> }
 >(lenses: Lenses, handler: (results: Results) => Result): L<Result>;
 export function combineLenses<Result, R1>(lenses: [L<R1>], handler: (v1: R1) => Result): L<Result>;
 export function combineLenses<Result, R1, R2>(lenses: [L<R1>, L<R2>], handler: (v1: R1, v2: R2) => Result): L<Result>;
@@ -84,28 +84,28 @@ export function combineLenses<Result, R1, R2, R3, R4, R5, R6, R7, R8, R9, R10>(
 ): L<Result>;
 
 export function combineLenses<Result, R>(
-  lenses: Lense<R>[] | Record<string, Lense<R>>,
+  lenses: Lens<R>[] | Record<string, Lens<R>>,
   handler: (...observable: (R | Record<string, R>)[]) => Result,
-): Lense<Result> {
+): Lens<Result> {
   const memoizedHandler = memoizeOne(handler);
 
-  return function useCombinedLense() {
+  return function useCombinedLens() {
     if (Array.isArray(lenses)) {
-      const lenseStates = lenses.map(update => update());
-      const results: R[] = lenseStates.map(i => i.result);
-      const models = Array.from(new Set(lenseStates.flatMap(i => i.models)));
+      const Lensestates = lenses.map(update => update());
+      const results: R[] = Lensestates.map(i => i.result);
+      const models = Array.from(new Set(Lensestates.flatMap(i => i.models)));
 
       return { models, result: memoizedHandler(...results) };
     }
 
-    const lenseStates = Object.entries(lenses).map(
+    const Lensestates = Object.entries(lenses).map(
       ([key, update]) => [key, update()] as [string, ReturnType<typeof update>],
     );
-    const results = lenseStates.reduce((acc, [key, i]) => {
+    const results = Lensestates.reduce((acc, [key, i]) => {
       acc[key] = i.result;
       return acc;
     }, {} as Record<string, R>);
-    const models = Array.from(new Set(lenseStates.flatMap(([_key, i]) => i.models)));
+    const models = Array.from(new Set(Lensestates.flatMap(([_key, i]) => i.models)));
 
     return { models, result: memoizedHandler(results) };
   };

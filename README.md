@@ -81,7 +81,7 @@ setTimeout(() => {
     - [`update`](#update)
     - [`destroy`](#destroy)
   - Lenses
-    - [`makeLense`](#makelense)
+    - [`createLens`](#createlens)
     - [`combineLenses`](#combinelenses)
     - [`watch`](#watch)
   - Helpers
@@ -96,7 +96,7 @@ setTimeout(() => {
     - [`useMemo`](#usememo)
     - [`useCallback`](#usecallback)
     - [`useRef`](#useref)
-    - [`useLense`](#uselense)
+    - [`useLens`](#uselens)
 - `ramodel/remote`
   - Web Worker
     - [`connectWorker`](#connectworker)
@@ -167,22 +167,22 @@ destroy(...modelInstances);
 
 Shutdown all side effects and clean the state in models instances
 
-### `makeLense`
+### `createLens`
 
 ```js
-import { makeLense } from 'ramodel';
+import { createLens } from 'ramodel';
 
-const lense = makeLense(modelInstance, accessorFunction);
+const lens = createLens(modelInstance, accessorFunction);
 ```
 
-Create lense. Works like [`get()`](api-main.md#get) but returns lense instead value
+Create lens. Works like [`get()`](api-main.md#get) but returns lens instead value
 
 ### `combineLenses`
 
 ```js
 import { combineLenses } from 'ramodel';
 
-const lense = combineLenses(lenses, handler);
+const lens = combineLenses(lenses, handler);
 ```
 
 Combine lenses in the one. It is very handly when you need to calculate value which depends on multiple lenses.
@@ -198,7 +198,7 @@ const unsubscribe = watch(lenses, handler);
 Watch for changes in models use lenses. The `handler` recive values extracted with `accessorFunction`. Returns function for unsubscribe
 
 ```js
-watch([lense], value => {
+watch([lens], value => {
   console.log(value);
 });
 ```
@@ -506,15 +506,15 @@ This works because `useRef()` creates a plain JavaScript object. The only differ
 
 Keep in mind that `useRef` doesn’t notify you when its content changes. Mutating the `.current` property doesn’t cause a re-update like `useState`.
 
-### `useLense`
+### `useLens`
 
 ```js
-import { useLense } from 'ramodel/hooks';
+import { useLens } from 'ramodel/hooks';
 
-const value = useLense(lense);
+const value = useLens(lens);
 ```
 
-With `useLense` hook you can get current value from the lense (which can created with [`makeLense`](#makelense) or [`combineLenses`](#combinelenses)) and all subsequent values ​​in updates.
+With `useLens` hook you can get current value from the lens (which can created with [`createLens`](#createlens) or [`combineLenses`](#combinelenses)) and all subsequent values ​​in updates.
 
 ### `connectWorker`
 

@@ -1,17 +1,17 @@
 // Copyright 2020 the RaModel authors. All rights reserved. MIT license.
 
 import { createInstance } from '../core/createInstance';
-import { makeLense } from '../core/lense';
+import { createLens } from '../core/lens';
 import { useState } from './useState';
-import { useLense } from './useLense';
+import { useLens } from './useLens';
 
-describe('useLense', () => {
+describe('useLens', () => {
   test('should return actual state immediately', async () => {
     const foo = createInstance({}, () => ({ bar: 'baz' }));
-    const fooLense = makeLense(foo, _ => _.bar);
+    const fooLens = createLens(foo, _ => _.bar);
 
     const instance = createInstance({}, () => {
-      const value = useLense(fooLense);
+      const value = useLens(fooLens);
       return { value };
     });
 
@@ -23,10 +23,10 @@ describe('useLense', () => {
       const [value, setValue] = useState('foo');
       return { value, setValue };
     });
-    const fooLense = makeLense(parent, _ => _.value);
+    const fooLens = createLens(parent, _ => _.value);
 
     const instance = createInstance({}, () => {
-      const value = useLense(fooLense);
+      const value = useLens(fooLens);
       return { value };
     });
 

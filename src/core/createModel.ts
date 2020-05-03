@@ -5,7 +5,7 @@ import { EVENT_CHANGE, EVENT_UPDATE_INPUT } from './events';
 import { Context } from './createContext';
 import { BaseModel } from './types';
 import { Scheduler } from './scheduler';
-import { notify } from './lense';
+import { notify } from './lens';
 import { EventEmitter, createEventEmitter } from './eventEmitter';
 import { onDestroy } from './destroy';
 import { shallowCompare } from './shallowCompare';

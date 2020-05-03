@@ -3,16 +3,16 @@
 import memoizeOne from 'memoize-one';
 import { EVENT_EMITTER } from './symbols';
 import { EVENT_CHANGE } from './events';
-import { Lense, ExtractResultFromLense } from './lense';
+import { Lens, ExtractResultFromLens } from './lens';
 
 type UnsubscribeFn = () => void;
 
-type L<R> = Lense<R>;
+type L<R> = Lens<R>;
 
 export function watch<
   Result,
-  Lenses extends Record<string, Lense<any>>,
-  Results = { [key in keyof Lenses]: ExtractResultFromLense<Lenses[key]> }
+  Lenses extends Record<string, Lens<any>>,
+  Results = { [key in keyof Lenses]: ExtractResultFromLens<Lenses[key]> }
 >(lenses: Lenses, handler: (results: Results) => unknown): UnsubscribeFn;
 export function watch<R1>(lenses: [L<R1>], handler: (v1: R1) => unknown): UnsubscribeFn;
 export function watch<R1, R2>(lenses: [L<R1>, L<R2>], handler: (v1: R1, v2: R2) => unknown): UnsubscribeFn;
@@ -50,7 +50,7 @@ export function watch<R1, R2, R3, R4, R5, R6, R7, R8, R9, R10>(
 ): UnsubscribeFn;
 
 export function watch<R>(
-  lenses: Lense<R>[] | Record<string, Lense<R>>,
+  lenses: Lens<R>[] | Record<string, Lens<R>>,
   handler: (...observable: (R | Record<string, R>)[]) => unknown,
 ): UnsubscribeFn {
   const memoizedHandler = memoizeOne(handler);
@@ -60,21 +60,21 @@ export function watch<R>(
     unsubscribes.forEach(fn => fn());
 
     if (Array.isArray(lenses)) {
-      const lenseStates = lenses.map(update => update());
-      const results: R[] = lenseStates.map(i => i.result);
-      const models = Array.from(new Set(lenseStates.flatMap(i => i.models)));
+      const Lensestates = lenses.map(update => update());
+      const results: R[] = Lensestates.map(i => i.result);
+      const models = Array.from(new Set(Lensestates.flatMap(i => i.models)));
 
       unsubscribes = models.map(model => model[EVENT_EMITTER].on(EVENT_CHANGE, () => tick()));
       memoizedHandler(...results);
     } else {
-      const lenseStates = Object.entries(lenses).map(
+      const Lensestates = Object.entries(lenses).map(
         ([key, update]) => [key, update()] as [string, ReturnType<typeof update>],
       );
-      const results = lenseStates.reduce((acc, [key, i]) => {
+      const results = Lensestates.reduce((acc, [key, i]) => {
         acc[key] = i.result;
         return acc;
       }, {} as Record<string, R>);
-      const models = Array.from(new Set(lenseStates.flatMap(([_key, i]) => i.models)));
+      const models = Array.from(new Set(Lensestates.flatMap(([_key, i]) => i.models)));
 
       unsubscribes = models.map(model => model[EVENT_EMITTER].on(EVENT_CHANGE, () => tick()));
       memoizedHandler(results);
