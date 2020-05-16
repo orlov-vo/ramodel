@@ -18,16 +18,33 @@
   "license": "MIT",
   "files": [
     "dist/**/*",
-    "hooks/**/*",
-    "remote/**/*"
+    "**/package.json"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/core/mod.d.ts",
+      "default": "./dist/core/mod.js"
+    },
+    "./hooks": {
+      "types": "./dist/hooks/mod.d.ts",
+      "default": "./dist/hooks/mod.js"
+    },
+    "./remote": {
+      "types": "./dist/remote/mod.d.ts",
+      "default": "./dist/remote/mod.js"
+    },
+    "./remote/worker": {
+      "types": "./dist/remote/worker/mod.d.ts",
+      "default": "./dist/remote/worker/mod.js"
+    }
+  },
   "scripts": {
     "clean": "rimraf dist",
     "build": "yarn clean && tsc",
     "test": "jest",
     "lint": "eslint src --ext .ts,.tsx",
     "format": "prettier --write \"src/**/*.ts\"",
-    "prepare": "yarn build",
+    "prepare": "yarn build && node ./scripts/shimming-exports.js",
     "prepublishOnly": "yarn test && yarn lint",
     "preversion": "yarn test && yarn lint",
     "version": "yarn format && git add -A src",

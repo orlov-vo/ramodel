@@ -1,4 +1,0 @@
-{
-  "main": "../dist/hooks/mod.js",
-  "types": "../dist/hooks/mod.d.ts"
-}

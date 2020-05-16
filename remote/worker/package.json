@@ -1,4 +1,0 @@
-{
-  "main": "../../dist/remote/worker/mod.js",
-  "types": "../../dist/remote/worker/mod.d.ts"
-}
