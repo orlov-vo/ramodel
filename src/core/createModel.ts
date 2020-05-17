@@ -148,6 +148,17 @@ export function createModel<Input extends object, Public extends object>(
           return false;
         },
 
+        has(target, key) {
+          if (key in target) {
+            return true;
+          }
+
+          // Flush all task queue and check property in result
+          target[SCHEDULER].flush();
+          const result = target[RESULT];
+          return result != null ? key in result : false;
+        },
+
         deleteProperty(_target, _key) {
           // Deny any deleting property
           return false;
@@ -161,6 +172,17 @@ export function createModel<Input extends object, Public extends object>(
           // Flush all task queue and return list of property keys from result
           target[SCHEDULER].flush();
           return Object.keys(target[RESULT] || {});
+        },
+
+        getOwnPropertyDescriptor(target, key) {
+          if (key in target) {
+            return Object.getOwnPropertyDescriptor(target, key);
+          }
+
+          // Flush all task queue and check descriptor in result
+          target[SCHEDULER].flush();
+          const result = target[RESULT];
+          return result != null ? Object.getOwnPropertyDescriptor(result, key) : undefined;
         },
       });
     }
