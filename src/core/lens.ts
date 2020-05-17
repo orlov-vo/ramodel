@@ -22,18 +22,18 @@ export function notify<M extends BaseModel>(model: M, key: string | number | sym
   eventEmitter.emit(EVENT_NAME, model, key, value);
 }
 
-export function createLens<T extends BaseModel, R>(rootModel: T, selector: Accessor<T, R>): Lens<R> {
+export function createLens<T, R>(value: T, selector: Accessor<T, R>): Lens<R> {
   return function useLens() {
     const models = new Set<BaseModel>();
 
-    if (isModel(rootModel)) {
-      models.add(rootModel);
+    if (isModel(value)) {
+      models.add(value);
     }
 
     const unsubscribe = subscribe(model => models.add(model));
 
     // @ts-ignore
-    const result = get(rootModel, selector) as R;
+    const result = get(value, selector) as R;
 
     unsubscribe();
 
