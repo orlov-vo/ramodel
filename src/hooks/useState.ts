@@ -5,7 +5,7 @@ import { hook, Hook } from '../core/hook';
 import { State } from '../core/state';
 
 type NewState<T> = T | ((previousState: T) => T);
-type StateUpdater<T> = (value: NewState<T>) => void;
+type StateUpdater<T> = (value: NewState<T>) => Promise<void>;
 
 export const useState = hook(
   class<T> extends Hook {
@@ -22,13 +22,13 @@ export const useState = hook(
       return this.args;
     }
 
-    updater(value: NewState<T>): void {
+    async updater(value: NewState<T>): Promise<void> {
       const [previousValue] = this.args;
       const newValue = typeof value === 'function' ? (value as (previousState?: T) => T)(previousValue) : value;
 
       if (newValue !== previousValue) {
         this.makeArgs(newValue);
-        this.state.update();
+        await this.state.update();
       }
     }
 

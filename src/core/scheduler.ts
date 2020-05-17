@@ -13,6 +13,8 @@ type Tasks = {
   flush(): void;
 };
 
+const FLUSH_LOOPS_COUNT = 10;
+
 const defer = Promise.resolve().then.bind(Promise.resolve());
 
 function flushTasks(tasks: TaskBox[]) {
@@ -106,14 +108,22 @@ export class Scheduler<R extends GenericFunction, C extends GenericFunction, H> 
     });
   }
 
-  flush() {
+  flush(): void {
     if (this._isDestroyed) return;
 
     this._isInFlushMode = true;
 
-    this._tasks.write.flush();
-    this._tasks.read.flush();
-    this._tasks.commit.flush();
+    for (let i = 0; i <= FLUSH_LOOPS_COUNT; i += 1) {
+      if (!this._tasks.write.tasks.length && !this._tasks.read.tasks.length && !this._tasks.commit.tasks.length) break;
+
+      this._tasks.write.flush();
+      this._tasks.read.flush();
+      this._tasks.commit.flush();
+
+      if (i === FLUSH_LOOPS_COUNT) {
+        console.error('Detected long loop on flush state, will skip tasks and resume control flow without them');
+      }
+    }
 
     this._isInFlushMode = false;
   }
@@ -121,27 +131,30 @@ export class Scheduler<R extends GenericFunction, C extends GenericFunction, H> 
   /**
    * Async version for update instance
    */
-  update(): void {
+  async update(): Promise<void> {
     if (this._isDestroyed) return;
     if (this._isInUpdateQueued) return;
 
-    this._tasks.read.run(() => {
-      // Update phase
-      const result = this.state.run(this.runFn);
+    await new Promise(resolve => {
+      this._tasks.read.run(() => {
+        // Update phase
+        const result = this.state.run(this.runFn);
 
-      this._tasks.commit.run(() => {
-        // Commit phase
-        this.commitFn(result);
+        this._tasks.commit.run(() => {
+          // Commit phase
+          this.commitFn(result);
+          resolve();
 
-        this._tasks.write.run(() => {
-          // Effects phase
-          this.state.runEffects();
+          this._tasks.write.run(() => {
+            // Effects phase
+            this.state.runEffects();
+          });
         });
-      });
 
-      this._isInUpdateQueued = false;
+        this._isInUpdateQueued = false;
+      });
+      this._isInUpdateQueued = true;
     });
-    this._isInUpdateQueued = true;
   }
 
   teardown(): void {

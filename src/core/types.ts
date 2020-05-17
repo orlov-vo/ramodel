@@ -7,6 +7,8 @@ import { EventEmitter } from './eventEmitter';
 
 export type VoidFunction = () => void;
 
+export type AsyncVoidFunction = () => Promise<void> | void;
+
 export type GenericFunction = (this: unknown, ...args: any[]) => unknown | void;
 
 export interface Container<Input, Public> {

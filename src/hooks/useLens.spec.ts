@@ -31,9 +31,11 @@ describe('useLens', () => {
     });
 
     expect(instance).toHaveProperty('value', 'foo');
+    expect(parent).toHaveProperty('value', 'foo');
 
-    parent.setValue('bar');
+    await parent.setValue('bar');
 
     expect(instance).toHaveProperty('value', 'bar');
+    expect(parent).toHaveProperty('value', 'bar');
   });
 });

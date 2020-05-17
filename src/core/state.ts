@@ -1,7 +1,7 @@
 // Copyright 2020 the RaModel authors. All rights reserved. MIT license.
 // Copyright 2018-2019 Matthew Phillips. All rights reserved. BSD 2-Clause license.
 
-import { VoidFunction } from './types';
+import { AsyncVoidFunction } from './types';
 import { HOOK, EFFECTS } from './symbols';
 import { Hook } from './hook';
 import { setCurrent, clear } from './stateInterface';
@@ -11,7 +11,7 @@ export interface Callable {
 }
 
 export class State<H = unknown> {
-  update: VoidFunction;
+  update: AsyncVoidFunction;
 
   host: H;
 
@@ -19,7 +19,7 @@ export class State<H = unknown> {
 
   [EFFECTS]: Callable[];
 
-  constructor(update: VoidFunction, host: H) {
+  constructor(update: AsyncVoidFunction, host: H) {
     this[HOOK] = new Map();
     this[EFFECTS] = [];
 

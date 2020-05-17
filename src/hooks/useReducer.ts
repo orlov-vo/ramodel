@@ -23,9 +23,9 @@ export const useReducer = hook(
       return [this.currentState, this.dispatch];
     }
 
-    dispatch(action: A): void {
+    async dispatch(action: A): Promise<void> {
       this.currentState = this.reducer(this.currentState, action);
-      this.state.update();
+      await this.state.update();
     }
   },
 );

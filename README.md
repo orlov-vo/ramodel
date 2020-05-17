@@ -310,6 +310,9 @@ counter.setState(count => count - 2);
 console.log(counter.count); // => 3
 ```
 
+`setState` returns a promise which resolves when instance is updated before effects runs. It can be useful if you need wait model updating.
+In main cases if you work with same instance it can be not needed because on every direct reading we try to finish all planned tasks for the instance before reading if it possible.
+
 ### `useEffect`
 
 ```js
@@ -411,6 +414,9 @@ console.log(counter.count); // => 1
 counter.decrement();
 console.log(counter.count); // => 0
 ```
+
+`dispatch` returns a promise which resolves when instance is updated before effects runs. It can be useful if you need wait model updating.
+In main cases if you work with same instance it can be not needed because on every direct reading we try to finish all planned tasks for the instance before reading if it possible.
 
 #### Specifying the initial state
 
