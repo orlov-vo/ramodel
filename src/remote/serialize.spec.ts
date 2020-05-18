@@ -21,15 +21,14 @@ describe('serialize', () => {
     return exportCounter;
   };
 
-  test('should serialize primitives', () => {
-    const PRIMITIVES = [0, false, true, 1, 2.5, 'foo', null, undefined, 'bar'];
+  test.each([0, false, true, 1, 2.5, 'foo', null, undefined, '', 'bar'].map(i => [i]))(
+    'should serialize primitives',
+    input => {
+      const result = serialize(input, { getExportId });
 
-    const results = PRIMITIVES.map(i => serialize(i, { getExportId }));
-
-    results.forEach((item, index) => {
-      expect(item).toBe(PRIMITIVES[index]);
-    });
-  });
+      expect(result).toBe(input);
+    },
+  );
 
   test('should serialize objects', () => {
     const original = { foo: 'bar' };

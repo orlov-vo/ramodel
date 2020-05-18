@@ -5,6 +5,7 @@ module.exports = {
     project: './tsconfig.json',
   },
   rules: {
+    'no-console': ['error', { allow: ['warn', 'error'] }],
     'no-unused-vars': [
       'error',
       {

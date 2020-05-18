@@ -1,6 +1,6 @@
 # RaModel
 
-Awesome framework for creating reactive & flexible models with Hooks API.
+Library for creating reactive & flexible models with Hooks API.
 
 [API References](#api-references) •
 [Demo TodoMVC example](https://github.com/orlov-vo/ramodel-demo-todomvc)
@@ -13,9 +13,9 @@ Awesome framework for creating reactive & flexible models with Hooks API.
 
 ## Quick Start
 
-### 1. Install the framework from NPM
+### 1. Install the library from NPM
 
-Execute this command in your project to install the framework as new dependency:
+Execute this command in your project to install the library as new dependency:
 
 ```sh
 npm install --save ramodel
@@ -522,23 +522,21 @@ const value = useLens(lens);
 
 With `useLens` hook you can get current value from the lens (which can created with [`createLens`](#createlens) or [`combineLenses`](#combinelenses)) and all subsequent values ​​in updates.
 
-### `connectWorker`
+### Worker `connect`
 
 ```js
 // Main thread
-import { connectWorker } from 'ramodel/remote';
+import { connect } from 'ramodel/remote/worker';
 
-async function main() {
-  const worker = new Worker('worker.js', { type: 'module' });
-  const remoteWorld = connectWorker(worker);
+const worker = new Worker('worker.js', { type: 'module' });
+const remoteWorld = connect(worker);
 
-  const myRemoteModel = await remoteWorld.get('my-model');
+const myRemoteModel = await remoteWorld.get('my-model');
 
-  // Now you can use `myRemoteModel` like local model
-}
+// Now you can use `myRemoteModel` like local model
 ```
 
-### `expose`
+### Worker `expose`
 
 ```js
 // Worker thread
@@ -548,8 +546,34 @@ const world = expose();
 world.set('my-model', myLocalModel);
 ```
 
+### Global `connect`
+
+```js
+import { connect } from 'ramodel/remote/global';
+
+const backgroundWindow = chrome.extension.getBackgroundPage();
+const remoteWorld = connect(backgroundWindow);
+
+const myRemoteModel = await remoteWorld.get('my-model');
+
+// Now you can use `myRemoteModel` like local model
+```
+
+### Global `expose`
+
+```js
+// Worker thread
+import { expose } from 'ramodel/remote/global';
+
+const backgroundWindow = chrome.extension.getBackgroundPage();
+const world = expose(backgroundWindow);
+world.set('my-model', myLocalModel);
+```
+
 ## Thanks
 
 This project based on [source code of "haunted"](https://github.com/matthewp/haunted).
-Thanks [Matthew Phillips](https://github.com/matthewp) and other contributors for their big work.
-Also big thanks to React's documentation authors for their very clear documentation about Hooks conceptions.
+
+- Thanks [Gleb Arestov](https://github.com/arestov) and him project [Deklarota](https://github.com/arestov/deklarota) for inspire me to create this library for reactive model management.
+- Thanks [Matthew Phillips](https://github.com/matthewp) and other contributors for their big work under re-implementing Hooks API.
+- Also big thanks to React's documentation authors for their very clear documentation about Hooks conceptions.

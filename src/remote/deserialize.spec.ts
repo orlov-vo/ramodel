@@ -7,15 +7,14 @@ describe('deserialize', () => {
   let handleModel = jest.fn((exportId, result) => ({ exportId, result }));
   const deser = (i: unknown) => deserialize(i, { handleFunction, handleModel });
 
-  test('should deserialize primitives', () => {
-    const PRIMITIVES = [0, false, true, 1, 2.5, 'foo', null, undefined, 'bar'];
+  test.each([0, false, true, 1, 2.5, 'foo', null, undefined, '', 'bar'].map(i => [i]))(
+    'should deserialize primitives',
+    input => {
+      const result = deser(input);
 
-    const results = PRIMITIVES.map(deser);
-
-    results.forEach((item, index) => {
-      expect(item).toBe(PRIMITIVES[index]);
-    });
-  });
+      expect(result).toBe(input);
+    },
+  );
 
   test('should deserialize objects', () => {
     const original = { foo: 'bar' };

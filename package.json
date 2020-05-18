@@ -36,6 +36,10 @@
     "./remote/worker": {
       "types": "./dist/remote/worker/mod.d.ts",
       "default": "./dist/remote/worker/mod.js"
+    },
+    "./remote/global": {
+      "types": "./dist/remote/global/mod.d.ts",
+      "default": "./dist/remote/global/mod.js"
     }
   },
   "scripts": {

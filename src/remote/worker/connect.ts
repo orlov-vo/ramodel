@@ -1,10 +1,10 @@
 // Copyright 2020 the RaModel authors. All rights reserved. MIT license.
 
-import { createModel, update } from '../core/mod';
-import { onDestroy } from '../core/destroy';
-import { RemoteWorld } from './RemoteWorld';
-import { deserialize } from './deserialize';
-import { GET_MODEL, CALL_FUNCTION, SUBSCRIBE_UPDATES } from './constants';
+import { createModel, update } from '../../core/mod';
+import { onDestroy } from '../../core/destroy';
+import { RemoteWorld } from '../RemoteWorld';
+import { deserialize } from '../deserialize';
+import { GET_MODEL, CALL_FUNCTION, SUBSCRIBE_UPDATES } from '../constants';
 
 class RemoteModel extends createModel(data => data) {}
 
@@ -13,17 +13,26 @@ type Resolver = (value: any) => void;
 
 type Message<T extends string, Q, P> = { type: T; query: Q; payload: P };
 
-export function connectWorker(worker: Worker | MessagePort) {
+export function connect(worker: Worker | MessagePort) {
   const gettingModelResolvers: Record<string, Resolver> = {};
   const callsFunctionsResolvers: Map<ExportId, Resolver> = new Map();
 
   const importedModels: Map<ExportId, RemoteModel> = new Map();
   const importedModelsExportIds: WeakMap<RemoteModel, ExportId> = new WeakMap();
 
+  const importedFunctions: Map<ExportId, Function> = new Map();
+  const importedFunctionIds: WeakMap<Function, ExportId> = new WeakMap();
+
   onDestroy('model', model => {
     const exportId = importedModelsExportIds.get(model);
     if (exportId == null) return;
     importedModels.delete(exportId);
+  });
+
+  onDestroy('function', fn => {
+    const exportId = importedFunctionIds.get(fn);
+    if (exportId == null) return;
+    importedFunctions.delete(exportId);
   });
 
   const deserializeOptions = {
@@ -45,19 +54,30 @@ export function connectWorker(worker: Worker | MessagePort) {
 
       return newInstance;
     },
-    handleFunction: (exportId: ExportId, _length: number) => (...args: unknown[]) =>
-      new Promise(resolve => {
-        if (callsFunctionsResolvers.has(exportId)) {
-          console.error('There is detected unhandled resolve method for calling function');
-        }
+    handleFunction: (exportId: ExportId, _length: number) => {
+      const importedFn = importedFunctions.get(exportId);
+      if (importedFn) {
+        return importedFn;
+      }
 
-        callsFunctionsResolvers.set(exportId, resolve);
-        worker.postMessage({
-          type: CALL_FUNCTION,
-          query: exportId,
-          payload: args,
+      const fn = (...args: unknown[]) =>
+        new Promise(resolve => {
+          if (callsFunctionsResolvers.has(exportId)) {
+            console.error('There is detected unhandled resolve method for calling function');
+          }
+
+          callsFunctionsResolvers.set(exportId, resolve);
+          worker.postMessage({
+            type: CALL_FUNCTION,
+            query: exportId,
+            payload: args,
+          });
         });
-      }),
+
+      importedFunctions.set(exportId, fn);
+
+      return fn;
+    },
   };
 
   const onGetModel = (message: Message<typeof GET_MODEL, string, object>) => {
