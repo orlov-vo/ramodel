@@ -96,11 +96,20 @@ setTimeout(() => {
     - [`useMemo`](#usememo)
     - [`useCallback`](#usecallback)
     - [`useRef`](#useref)
+  - RaModel Hooks
     - [`useLens`](#uselens)
+    - [`useModel`](#usemodel)
+    - [`useModelFabric`](#usemodelfabric)
 - `ramodel/remote`
   - Web Worker
-    - [`connectWorker`](#connectworker)
+    - [`connect`](#connect)
     - [`expose`](#expose)
+  - Global
+    - [`connect`](#connect)
+    - [`expose`](#expose)
+- `ramodel/devtools`
+  - Console logger
+    - [`createLogger`](#createlogger)
 
 ### `createModel`
 
@@ -521,6 +530,37 @@ const value = useLens(lens);
 ```
 
 With `useLens` hook you can get current value from the lens (which can created with [`createLens`](#createlens) or [`combineLenses`](#combinelenses)) and all subsequent values ​​in updates.
+
+### `useModel`
+
+```js
+import { useModel } from 'ramodel/hooks';
+
+const child = useModel(Model, {
+  input: {},
+  contexts: [
+    [ContextA, contextValueA],
+    [ContextB, contextValueB],
+  ],
+});
+```
+
+### `useModelFabric`
+
+```js
+import { useModelFabric } from 'ramodel/hooks';
+
+const createInstance = useModelFabric(Model, {
+  input: { foo: 'default' },
+  contexts: [],
+});
+
+const [instance, updateInstance] = createInstance({ foo: 'bar' });
+
+...
+
+updateInstance({ foo: 'baz' })
+```
 
 ### Worker `connect`
 
