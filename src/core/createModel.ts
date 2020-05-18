@@ -22,6 +22,25 @@ const bus = createEventEmitter();
 
 export const onInit: (handler: (instance: BaseModel) => void) => () => void = bus.on.bind(null, INIT_EVENT);
 
+/**
+ * Synchronously retrieve result from instance after state updates
+ *
+ * @param target Model's instance
+ * @returns Fresh result from instance
+ */
+function getFreshResult(target: BaseModel) {
+  const scheduler = target[SCHEDULER];
+
+  // If instance is destroyed forgot about getting result
+  if (scheduler == null) {
+    return undefined;
+  }
+
+  // Flush all task queue and get fresh result
+  scheduler.flush();
+  return target[RESULT];
+}
+
 let currentModelInExecuting: BaseModel | null = null;
 
 /**
@@ -118,23 +137,15 @@ export function createModel<Input extends object, Public extends object>(
             return (target as any)[key];
           }
 
-          // If instance is destroyed forgot about getting values from result
-          if (target[SCHEDULER] == null) {
+          const result = getFreshResult(target);
+          if (result == null) {
             return undefined;
           }
 
-          // Flush all task queue and return property from result
-          target[SCHEDULER].flush();
-          const result = target[RESULT];
-          if (result) {
-            const value = (result as any)[key];
-            notify(target, key, value);
+          const value = (result as any)[key];
+          notify(target, key, value);
 
-            return value;
-          }
-
-          // If nothing to find here
-          return undefined;
+          return value;
         },
 
         set(target, key, value, _reciver) {
@@ -153,9 +164,7 @@ export function createModel<Input extends object, Public extends object>(
             return true;
           }
 
-          // Flush all task queue and check property in result
-          target[SCHEDULER].flush();
-          const result = target[RESULT];
+          const result = getFreshResult(target);
           return result != null ? key in result : false;
         },
 
@@ -165,13 +174,8 @@ export function createModel<Input extends object, Public extends object>(
         },
 
         ownKeys(target) {
-          if (target[SCHEDULER] == null) {
-            return [];
-          }
-
-          // Flush all task queue and return list of property keys from result
-          target[SCHEDULER].flush();
-          return Object.keys(target[RESULT] || {});
+          const result = getFreshResult(target);
+          return result != null ? Object.keys(result) : [];
         },
 
         getOwnPropertyDescriptor(target, key) {
@@ -179,9 +183,7 @@ export function createModel<Input extends object, Public extends object>(
             return Object.getOwnPropertyDescriptor(target, key);
           }
 
-          // Flush all task queue and check descriptor in result
-          target[SCHEDULER].flush();
-          const result = target[RESULT];
+          const result = getFreshResult(target);
           return result != null ? Object.getOwnPropertyDescriptor(result, key) : undefined;
         },
       });
