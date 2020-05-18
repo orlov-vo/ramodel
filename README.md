@@ -570,6 +570,17 @@ const world = expose(backgroundWindow);
 world.set('my-model', myLocalModel);
 ```
 
+### `createLogger`
+
+```js
+import { createLogger } from 'ramodel/devtools';
+
+createLogger(instance, {
+  name: 'my awesome instance',
+  diff: true,
+});
+```
+
 ## Thanks
 
 This project based on [source code of "haunted"](https://github.com/matthewp/haunted).

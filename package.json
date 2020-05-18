@@ -40,6 +40,10 @@
     "./remote/global": {
       "types": "./dist/remote/global/mod.d.ts",
       "default": "./dist/remote/global/mod.js"
+    },
+    "./devtools": {
+      "types": "./dist/devtools/mod.d.ts",
+      "default": "./dist/devtools/mod.js"
     }
   },
   "scripts": {
@@ -58,7 +62,9 @@
     "hooks": {}
   },
   "devDependencies": {
+    "@types/deep-diff": "^1.0.0",
     "@types/jest": "^25.2.1",
+    "@types/lodash.clonedeep": "^4.5.6",
     "@typescript-eslint/eslint-plugin": "^2.30.0",
     "@typescript-eslint/parser": "^2.30.0",
     "eslint": "^6.8.0",
@@ -74,7 +80,9 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "deep-diff": "^1.0.2",
     "idx": "^2.5.6",
+    "lodash.clonedeep": "^4.5.0",
     "memoize-one": "^5.1.1",
     "nanoid": "^3.1.3"
   }
