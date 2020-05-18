@@ -101,12 +101,12 @@ setTimeout(() => {
     - [`useModel`](#usemodel)
     - [`useModelFabric`](#usemodelfabric)
 - `ramodel/remote`
-  - Web Worker
-    - [`connect`](#connect)
-    - [`expose`](#expose)
+  - Worker
+    - [`connect`](#worker-connect)
+    - [`expose`](#worker-expose)
   - Global
-    - [`connect`](#connect)
-    - [`expose`](#expose)
+    - [`connect`](#global-connect)
+    - [`expose`](#global-expose)
 - `ramodel/devtools`
   - Console logger
     - [`createLogger`](#createlogger)
