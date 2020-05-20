@@ -1,5 +1,8 @@
 # RaModel
 
+<img src="https://orlov-vo.github.io/ramodel/logotype.svg" align="right"
+     alt="RaModel logotype" width="200" height="200">
+
 Library for creating reactive & flexible models with Hooks API.
 
 [API References](#api-references) •
