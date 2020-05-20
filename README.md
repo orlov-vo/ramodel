@@ -9,10 +9,14 @@ Library for creating reactive & flexible models with Hooks API.
 [Demo TodoMVC example](https://github.com/orlov-vo/ramodel-demo-todomvc)
 
 - **Easy to learn.** It has the same [React Hooks API](https://reactjs.org/docs/hooks-reference.html)
-- **Small.** The main goal of project is create framework with very small and clear API
 - **Typed.** The library provide full coverege typings via TypeScript
+- **Contexts.** It has simple API to communicate between different contexts
+- **Small.** We try to minimize distributed size and use tiny dependencies
 
-**It is research project - it isn't ready for use in production yet.**
+![Version](https://img.shields.io/npm/v/ramodel)
+![Size on bundlephobia](https://img.shields.io/bundlephobia/minzip/ramodel)
+![Openned issues](https://img.shields.io/github/issues-raw/orlov-vo/ramodel)
+![License MIT](https://img.shields.io/npm/l/ramodel)
 
 ## Quick Start
 
