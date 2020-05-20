@@ -34,50 +34,104 @@ Or if you using yarn:
 yarn add ramodel
 ```
 
-### 2. Start using for creating models.
+### 2. Define your first model.
 
-Example:
+Import [`createModel`](#createmodel) method from the library
+
+```js
+import { createModel } from 'ramodel';
+```
+
+If you are using TypeScript you can write type for the model's input. This type will be used when you construct new instance of model or update the instance's input via [update](#update) method.
 
 ```ts
-import { createModel, destroy } from 'ramodel';
-import { useState, useEffect } from 'ramodel/hooks';
-
 interface CarProps {
   fuelQuantity: number;
   fuelConsumption: number;
 }
+```
 
+Now you can define your model with [`createModel`](#createmodel):
+
+```ts
 const Car = createModel((props: CarProps) => {
-  const [fuelQuantity, setFuelQuantity] = useState(props.fuelQuantity);
+  // Main body which re-run on every update
+  // Here you can use Hooks from `ramodel/hooks` module
+  ...
 
-  useEffect(() => {
-    const timerId = setTimeout(() => {
-      setFuelQuantity(value => {
-        if (value > 0) {
-          return value - props.fuelConsumption;
-        }
-
-        console.log("Car's got empty tank!");
-
-        return value;
-      });
-    }, 1000);
-
-    return () => clearInterval(timerId);
-  }, [fuelQuantity]);
-
-  return { fuelQuantity, setFuelQuantity };
+  return {
+    // Public methods and properties
+    ...
+  };
 });
+```
 
+This is very similar to the React's functional components, but instead of returning elements, in RaModel you should return public methods and properties. Important: they are read-only, it helps you to use them without unpredictable state mutating from outside. You can mutate the model's state only with public methods
+
+After defining you can construct new instance via `new` operator:
+
+```js
 const jeep = new Car({
   fuelQuantity: 40,
   fuelConsumption: 1,
 });
+```
 
-setTimeout(() => {
-  console.log(`Stop work... Jeep's got ${jeep.fuelQuantity} fuel`);
-  destroy(jeep);
-}, 3500);
+The `jeep` variable will have all defined public methods and properties before in `Car` model.
+
+Main the library's limitation is instances should be destroyed manually via [`destroy`](#destroy) method:
+
+```js
+destroy(jeep);
+```
+
+### 3. Subscribe to instance's updates
+
+To watch needed updates you can use the system of lenses. It is power functional concept let us get the whole information about using models in result of calculation. This information can be used in [`watch`](#watch) method:
+
+```js
+import { createLens, watch } from 'ramodel';
+
+const odometerLens = createLens(motocycle, _ => _.odometer);
+
+watch(odometerLens, odometer => console.log(`Motocycle's odometer: ${odometer}`));
+```
+
+To debug state's changes you can use [`createLogger`](#createlogger) method from devtools:
+
+```js
+import { createLogger } from 'ramodel/devtools';
+
+createLogger(motocycle);
+```
+
+### 4. Advance using models from remote context
+
+All power of RaModel in providing simple API to use reactive models from remote contexts. The remote context here may be Web Worker or `window` from extension's background page or some remote server.
+
+For example if you has some `worker.js` script which will be executed in Web Worker contexts you can export your instances to the main process.
+
+```js
+// worker.js - Worker's process
+import { expose } from 'ramodel/remote/worker';
+
+const world = expose();
+world.set('jeep', jeep);
+```
+
+An then in main process you can import the `jeep` instance:
+
+```js
+// main.js - Main process
+import { connect } from 'ramodel/remote/worker';
+
+const worker = new Worker('worker.js', { type: 'module' });
+const remoteWorld = connect(worker);
+
+const jeep = await remoteWorld.get('jeep');
+
+// Now you can use `jeep` like local model
+// But it continue live in the worker process
 ```
 
 ## API References
@@ -140,13 +194,23 @@ const Model = createModel((props) => {
   };
 });
 
-// Create an instance of Model with passwed props
+// Create an instance of Model with passed props
 const modelInstance = new Model(props);
+```
+
+If you want use reference to class as type you can use another way of defining models via `class extends`:
+
+```ts
+class Model extends createModel(() => {
+  /* ... */
+}) {}
 ```
 
 If you want skip creating model and fast create needed instance you can use this shortcut:
 
 ```js
+import { createInstance } from 'ramodel';
+
 const modelInstance = createInstance(input, mainFn);
 ```
 
@@ -572,7 +636,6 @@ updateInstance({ foo: 'baz' })
 ### Worker `connect`
 
 ```js
-// Main thread
 import { connect } from 'ramodel/remote/worker';
 
 const worker = new Worker('worker.js', { type: 'module' });
@@ -581,12 +644,13 @@ const remoteWorld = connect(worker);
 const myRemoteModel = await remoteWorld.get('my-model');
 
 // Now you can use `myRemoteModel` like local model
+// But it continue live in the worker process
 ```
 
 ### Worker `expose`
 
 ```js
-// Worker thread
+// Worker's process
 import { expose } from 'ramodel/remote/worker';
 
 const world = expose();
@@ -604,12 +668,12 @@ const remoteWorld = connect(backgroundWindow);
 const myRemoteModel = await remoteWorld.get('my-model');
 
 // Now you can use `myRemoteModel` like local model
+// But it continue live in the background page's process
 ```
 
 ### Global `expose`
 
 ```js
-// Worker thread
 import { expose } from 'ramodel/remote/global';
 
 const backgroundWindow = chrome.extension.getBackgroundPage();
