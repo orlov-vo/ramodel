@@ -13,10 +13,10 @@ Library for creating reactive & flexible models with Hooks API.
 - **Contexts.** It has simple API to communicate between different contexts
 - **Small.** We try to minimize distributed size and use tiny dependencies
 
-![Version](https://img.shields.io/npm/v/ramodel)
-![Size on bundlephobia](https://img.shields.io/bundlephobia/minzip/ramodel)
-![Openned issues](https://img.shields.io/github/issues-raw/orlov-vo/ramodel)
-![License MIT](https://img.shields.io/npm/l/ramodel)
+[![Version](https://img.shields.io/npm/v/ramodel)](https://www.npmjs.com/package/ramodel)
+[![Size on bundlephobia](https://img.shields.io/bundlephobia/minzip/ramodel)](https://bundlephobia.com/result?p=ramodel)
+[![Openned issues](https://img.shields.io/github/issues-raw/orlov-vo/ramodel)](https://github.com/orlov-vo/ramodel/issues)
+[![License MIT](https://img.shields.io/npm/l/ramodel)](https://github.com/orlov-vo/ramodel/blob/master/LICENSE.md)
 
 ## Quick Start
 
