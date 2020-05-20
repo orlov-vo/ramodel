@@ -42,7 +42,7 @@ Import [`createModel`](#createmodel) method from the library
 import { createModel } from 'ramodel';
 ```
 
-If you are using TypeScript you can write type for the model's input. This type will be used when you construct new instance of model or update the instance's input via [update](#update) method.
+If you are using TypeScript you can write type for the model's input. This type will be used when you construct new instance of model or update the instance's input via [`update`](#update) method.
 
 ```ts
 interface CarProps {
