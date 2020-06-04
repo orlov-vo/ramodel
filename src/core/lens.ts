@@ -1,12 +1,17 @@
 // Copyright 2020 the RaModel authors. All rights reserved. MIT license.
 
 import memoizeOne from 'memoize-one';
-import { BaseModel } from './types';
+import { BaseModel, VoidFunction } from './types';
 import { get, Accessor } from './get';
 import { isModel } from './isModel';
 import { createEventEmitter } from './eventEmitter';
+import { watch } from './watch';
 
-export type Lens<R> = () => { models: BaseModel[]; result: R };
+export interface Lens<R> {
+  (): { models: BaseModel[]; result: R };
+  subscribe: (subscribeHandler: (value: R) => void) => VoidFunction;
+  toString: () => string;
+}
 export type ExtractResultFromLens<TLens> = TLens extends Lens<infer R> ? R : never;
 
 type Handler<M> = (model: M, key: string | number | symbol, value: unknown) => unknown;
@@ -23,7 +28,7 @@ export function notify<M extends BaseModel>(model: M, key: string | number | sym
 }
 
 export function createLens<T, R>(value: T, selector: Accessor<T, R>): Lens<R> {
-  return function useLens() {
+  const lens = function useLens() {
     const models = new Set<BaseModel>();
 
     if (isModel(value)) {
@@ -39,6 +44,11 @@ export function createLens<T, R>(value: T, selector: Accessor<T, R>): Lens<R> {
 
     return { models: Array.from(models), result };
   };
+
+  lens.toString = () => String(lens().result);
+  lens.subscribe = (subscribeHandler: (value: R) => void): VoidFunction => watch(lens, subscribeHandler);
+
+  return lens;
 }
 
 type L<R> = Lens<R>;
@@ -89,7 +99,7 @@ export function combineLenses<Result, R>(
 ): Lens<Result> {
   const memoizedHandler = memoizeOne(handler);
 
-  return function useCombinedLens() {
+  const lens = function useCombinedLens() {
     if (Array.isArray(lenses)) {
       const Lensestates = lenses.map(update => update());
       const results: R[] = Lensestates.map(i => i.result);
@@ -109,4 +119,9 @@ export function combineLenses<Result, R>(
 
     return { models, result: memoizedHandler(results) };
   };
+
+  lens.toString = () => String(lens().result);
+  lens.subscribe = (subscribeHandler: (value: Result) => void): VoidFunction => watch(lens, subscribeHandler);
+
+  return lens;
 }

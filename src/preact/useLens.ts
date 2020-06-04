@@ -1,8 +1,7 @@
 // Copyright 2020 the RaModel authors. All rights reserved. MIT license.
 
+import { useState, useEffect } from 'preact/hooks';
 import type { Lens } from '../core/lens';
-import { useState } from './useState';
-import { useEffect } from './useEffect';
 
 export function useLens<R>(lens: Lens<R>): R {
   const [result, setResult] = useState<R>(lens().result);

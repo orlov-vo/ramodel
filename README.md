@@ -3,15 +3,17 @@
 <img src="https://orlov-vo.github.io/ramodel/logotype.svg" align="right"
      alt="RaModel logotype" width="200" height="200">
 
-Library for creating reactive & flexible models with Hooks API.
+A library for creating reactive & flexible models with Hooks API.
+Can works together with [**React**](#react-and-preact), [**Preact**](#react-and-preact) and [**Svelte**](#svelte).
 
 [API References](#api-references) •
 [Demo TodoMVC example](https://github.com/orlov-vo/ramodel-demo-todomvc)
 
-- **Easy to learn.** It has the same [React Hooks API](https://reactjs.org/docs/hooks-reference.html)
-- **Typed.** The library provide full coverege typings via TypeScript
-- **Contexts.** It has simple API to communicate between different contexts
-- **Small.** We try to minimize distributed size and use tiny dependencies
+- **Hooks.** It has Hooks like it made in [React](https://reactjs.org/docs/hooks-reference.html).
+- **Fast**. It has many performance optimization to track changes only from needed instances.
+- **Typed.** The library provide full coverage typings via TypeScript.
+- **Contexts.** It has simple API to communicate between different contexts.
+- **Small.** We try to minimize distributed size and use tiny dependencies.
 
 [![Version](https://img.shields.io/npm/v/ramodel)](https://www.npmjs.com/package/ramodel)
 [![Size on bundlephobia](https://img.shields.io/bundlephobia/minzip/ramodel)](https://bundlephobia.com/result?p=ramodel)
@@ -135,6 +137,41 @@ const jeep = await remoteWorld.get('jeep');
 // Now you can use `jeep` like local model
 // But it continue live in the worker process
 ```
+
+## Integration with popular frameworks
+
+RaModel has very simple API which easy to ingrate with many popular library and frameworks.
+Most often you only need to use lenses and a [`watch`](#watch) method for subscribe updates.
+
+### React and Preact
+
+```js
+import { useLens } from 'ramodel/react'; // or from 'ramodel/preact'
+import { odometerLens } from './lenses';
+
+function App() {
+  const odometer = useLens(odometerLens);
+
+  return <div>{odometer} miles</div>;
+}
+```
+
+### Svelte
+
+All lenses are fully compliant [Store contract](https://svelte.dev/docs#Store_contract) in read-only mode.
+Because of this you can use lenses as [reactive variables](https://svelte.dev/docs#4_Prefix_stores_with_$_to_access_their_values).
+
+```html
+<script>
+  import { odometerLens } from './lenses';
+</script>
+
+<div>{$odometerLens} miles</div>
+```
+
+### Angular, Vue and other frameworks
+
+Sorry but I don't know these frameworks deeply to write good integration with them, if you want help me just [create a new issue](https://github.com/orlov-vo/ramodel/issues/new).
 
 ## API References
 
