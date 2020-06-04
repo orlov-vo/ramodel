@@ -163,13 +163,12 @@ const jeep = await remoteWorld.get('jeep');
     - [`useLens`](#uselens)
     - [`useModel`](#usemodel)
     - [`useModelFabric`](#usemodelfabric)
-- `ramodel/remote`
-  - Worker
-    - [`connect`](#worker-connect)
-    - [`expose`](#worker-expose)
-  - Global
-    - [`connect`](#global-connect)
-    - [`expose`](#global-expose)
+- `ramodel/remote/worker`
+  - [`connect`](#worker-connect)
+  - [`expose`](#worker-expose)
+- `ramodel/remote/global`
+  - [`connect`](#global-connect)
+  - [`expose`](#global-expose)
 - `ramodel/devtools`
   - [`createLogger`](#createlogger)
   - [`connectReduxDevtools`](#connectreduxdevtools)
