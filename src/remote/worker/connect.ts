@@ -54,7 +54,7 @@ export function connect(worker: Worker | MessagePort) {
 
       return newInstance;
     },
-    handleFunction: (exportId: ExportId, _length: number) => {
+    handleFunction: (exportId: ExportId, { content }: { length: number; content: string }) => {
       const importedFn = importedFunctions.get(exportId);
       if (importedFn) {
         return importedFn;
@@ -73,6 +73,8 @@ export function connect(worker: Worker | MessagePort) {
             payload: args,
           });
         });
+
+      fn.toString = () => content;
 
       importedFunctions.set(exportId, fn);
 

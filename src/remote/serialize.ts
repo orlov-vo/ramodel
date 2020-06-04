@@ -51,6 +51,7 @@ export function serialize(data: unknown, options: SerializeOptions): unknown {
       ramodel: EXPORT_FUNCTION,
       exportId: getExportId(data),
       length: data.length,
+      content: data.toString(),
     };
   }
 

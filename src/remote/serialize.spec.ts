@@ -52,6 +52,8 @@ describe('serialize', () => {
       ramodel: 'EXPORT_FUNCTION',
       exportId: exportCounter,
       length: 2,
+      // eslint-disable-next-line no-template-curly-in-string
+      content: '(a, b) => `${a} + ${b}`',
     });
   });
 
@@ -67,6 +69,8 @@ describe('serialize', () => {
           ramodel: 'EXPORT_FUNCTION',
           exportId: exportCounter - 1,
           length: 2,
+          // eslint-disable-next-line no-template-curly-in-string
+          content: '(a, b) => `${a} + ${b}`',
         },
         bar: 'test',
       },

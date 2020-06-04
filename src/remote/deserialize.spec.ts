@@ -3,7 +3,7 @@
 import { deserialize } from './deserialize';
 
 describe('deserialize', () => {
-  let handleFunction = jest.fn((exportId, length) => ({ exportId, length }));
+  let handleFunction = jest.fn((exportId, { length, content }) => ({ exportId, length, content }));
   let handleModel = jest.fn((exportId, result) => ({ exportId, result }));
   const deser = (i: unknown) => deserialize(i, { handleFunction, handleModel });
 
@@ -46,7 +46,7 @@ describe('deserialize', () => {
   });
 
   test('should deserialize models', () => {
-    handleFunction = jest.fn((exportId, length) => ({ exportId, length }));
+    handleFunction = jest.fn((exportId, { length, content }) => ({ exportId, length, content }));
     handleModel = jest.fn((exportId, result) => ({ exportId, result }));
 
     const result = deser({
@@ -57,6 +57,7 @@ describe('deserialize', () => {
           ramodel: 'EXPORT_FUNCTION',
           exportId: 1,
           length: 2,
+          content: '(a, b) => a + b',
         },
         bar: 'test',
       },
@@ -71,6 +72,7 @@ describe('deserialize', () => {
         foo: {
           exportId: 1,
           length: 2,
+          content: '(a, b) => a + b',
         },
         bar: 'test',
       },

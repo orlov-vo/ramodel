@@ -26,6 +26,7 @@ type ExportedFunction = {
   ramode: typeof EXPORT_FUNCTION;
   exportId: ExportId;
   length: number;
+  content: string;
 };
 
 function isExportedFunction(instance: unknown): instance is ExportedFunction {
@@ -34,7 +35,7 @@ function isExportedFunction(instance: unknown): instance is ExportedFunction {
 
 type DeserializeOptions = {
   handleModel: (exportId: ExportId, data: object) => unknown;
-  handleFunction: (exportId: ExportId, length: number) => unknown;
+  handleFunction: (exportId: ExportId, data: { length: number; content: string }) => unknown;
 };
 
 export function deserialize(data: unknown, options: DeserializeOptions): unknown {
@@ -47,7 +48,7 @@ export function deserialize(data: unknown, options: DeserializeOptions): unknown
   if (isExportedFunction(data)) {
     const { handleFunction } = options;
 
-    return handleFunction(data.exportId, data.length);
+    return handleFunction(data.exportId, { length: data.length, content: data.content });
   }
 
   if (Array.isArray(data)) {
