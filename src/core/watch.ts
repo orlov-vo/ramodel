@@ -4,6 +4,7 @@ import memoizeOne from 'memoize-one';
 import { EVENT_EMITTER } from './symbols';
 import { EVENT_CHANGE } from './events';
 import { Lens, ExtractResultFromLens } from './lens';
+import { BaseModel } from './types';
 
 type UnsubscribeFn = () => void;
 
@@ -57,7 +58,18 @@ export function watch<R>(
   const memoizedHandler = memoizeOne(handler);
   let unsubscribes: UnsubscribeFn[] = [];
 
+  let lastTick: Promise<void> | null = null;
+  const debounceTick = () => {
+    if (lastTick) return;
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    lastTick = Promise.resolve().then(tick);
+  };
+
+  const subscribeModels = (models: BaseModel[]) =>
+    models.map(model => model[EVENT_EMITTER].on(EVENT_CHANGE, debounceTick));
+
   const tick = () => {
+    lastTick = null;
     unsubscribes.forEach(fn => fn());
 
     if (Array.isArray(lenses)) {
@@ -65,12 +77,12 @@ export function watch<R>(
       const results: R[] = lensState.map(i => i.result);
       const models = Array.from(new Set(lensState.flatMap(i => i.models)));
 
-      unsubscribes = models.map(model => model[EVENT_EMITTER].on(EVENT_CHANGE, () => tick()));
+      unsubscribes = subscribeModels(models);
       memoizedHandler(...results);
     } else if (typeof lenses === 'function') {
       const { result, models } = lenses();
 
-      unsubscribes = models.map(model => model[EVENT_EMITTER].on(EVENT_CHANGE, () => tick()));
+      unsubscribes = subscribeModels(models);
       memoizedHandler(result);
     } else {
       const lensState = Object.entries(lenses).map(
@@ -82,7 +94,7 @@ export function watch<R>(
       }, {} as Record<string, R>);
       const models = Array.from(new Set(lensState.flatMap(([_key, i]) => i.models)));
 
-      unsubscribes = models.map(model => model[EVENT_EMITTER].on(EVENT_CHANGE, () => tick()));
+      unsubscribes = subscribeModels(models);
       memoizedHandler(results);
     }
   };
