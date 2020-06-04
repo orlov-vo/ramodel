@@ -97,12 +97,14 @@ const odometerLens = createLens(motocycle, _ => _.odometer);
 watch(odometerLens, odometer => console.log(`Motocycle's odometer: ${odometer}`));
 ```
 
-To debug state's changes you can use [`createLogger`](#createlogger) method from devtools:
+To debug state's changes you can use [`createLogger`](#createlogger) or [`connectReduxDevtools`](#connectreduxdevtools) method from devtools:
 
 ```js
 import { createLogger } from 'ramodel/devtools';
 
 createLogger(motocycle);
+// or
+connectReduxDevtools(motocycle);
 ```
 
 ### 4. Advance using models from remote context
@@ -169,8 +171,8 @@ const jeep = await remoteWorld.get('jeep');
     - [`connect`](#global-connect)
     - [`expose`](#global-expose)
 - `ramodel/devtools`
-  - Console logger
-    - [`createLogger`](#createlogger)
+  - [`createLogger`](#createlogger)
+  - [`connectReduxDevtools`](#connectreduxdevtools)
 
 ### `createModel`
 
@@ -691,6 +693,17 @@ createLogger(instance, {
   diff: true,
 });
 ```
+
+### `connectReduxDevtools`
+
+```js
+import { connectReduxDevtools } from 'ramodel/devtools';
+
+connectReduxDevtools(instance, { name: 'my awesome instance' });
+```
+
+You can connect [Redux DevTools](https://github.com/reduxjs/redux-devtools) to debug your model instance.
+It has a very basic integration with it, some features may not worked.
 
 ## Thanks
 
