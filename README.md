@@ -97,6 +97,8 @@ import { createLens, watch } from 'ramodel';
 const odometerLens = createLens(motocycle, _ => _.odometer);
 
 watch(odometerLens, odometer => console.log(`Motocycle's odometer: ${odometer}`));
+// or you can use alias:
+odometerLens.subscribe(odometer => console.log(`Motocycle's odometer: ${odometer}`));
 ```
 
 To debug state's changes you can use [`createLogger`](#createlogger) or [`connectReduxDevtools`](#connectreduxdevtools) method from devtools:
