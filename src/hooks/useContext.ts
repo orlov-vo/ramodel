@@ -17,7 +17,7 @@ export const useContext = hook(
       this.context.use(this.state.host as BaseModel);
     }
 
-    update(context: Context<T>) {
+    update(context: Context<T>): T {
       this.context = context;
 
       let host: BaseModel | null = this.state.host as BaseModel;
@@ -25,7 +25,7 @@ export const useContext = hook(
       while (host) {
         const contexts = host[CONTEXTS];
         if (contexts.has(this.context)) {
-          return contexts.get(this.context);
+          return contexts.get(this.context) as T;
         }
 
         host = host[PARENT];
