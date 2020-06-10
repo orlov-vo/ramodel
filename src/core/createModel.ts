@@ -41,7 +41,32 @@ function getFreshResult(target: BaseModel) {
   return target[RESULT];
 }
 
-let currentModelInExecuting: BaseModel | null = null;
+let modelInExecuting: BaseModel | null = null;
+
+/**
+ * Get current model in executing
+ *
+ * @returns Current model in executing
+ */
+export function getModelInExecuting(): typeof modelInExecuting {
+  return modelInExecuting;
+}
+
+/**
+ * Set current model in executing
+ *
+ * @param model Model
+ * @param fn Run function
+ * @returns Result from run function
+ */
+export function setModelInExecuting<R>(model: typeof modelInExecuting, fn: () => R): R {
+  const temp = modelInExecuting;
+  modelInExecuting = model;
+  const result = fn();
+  modelInExecuting = temp;
+
+  return result;
+}
 
 /**
  * Create a new model
@@ -74,11 +99,11 @@ export function createModel<Input extends object, Public extends object>(
     /** Contexts */
     [CONTEXTS]: Map<Context<unknown>, unknown>;
 
-    constructor(input: Input) {
+    constructor(input = {} as Input) {
       this[INPUT] = input;
       this[RESULT] = null;
       this[EVENT_EMITTER] = createEventEmitter();
-      this[PARENT] = currentModelInExecuting;
+      this[PARENT] = modelInExecuting;
       this[CHILDREN] = [];
       this[CONTEXTS] = new Map();
 
@@ -89,15 +114,7 @@ export function createModel<Input extends object, Public extends object>(
       };
 
       /** Handler for reading phase */
-      const onRun = () => {
-        // Set current instance to `currentModelInExecuting` only in run method
-        const lastCurrentModelInExecuting = currentModelInExecuting;
-        currentModelInExecuting = this;
-        const result = run(this[INPUT]);
-        currentModelInExecuting = lastCurrentModelInExecuting;
-
-        return result;
-      };
+      const onRun = () => setModelInExecuting(this, () => run(this[INPUT]));
 
       // Create and connect scheduler to the instance
       const scheduler = new Scheduler(onRun, onCommit, this);

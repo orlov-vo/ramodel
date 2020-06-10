@@ -662,15 +662,15 @@ const child = useModel(Model, {
 import { useModelFabric } from 'ramodel/hooks';
 
 const createInstance = useModelFabric(Model, {
-  input: { foo: 'default' },
-  contexts: [],
+  // Here you can pass list of pairs of context and value
+  // It supports dynamic updates of values for new and all previously created instances
+  contexts: [
+    [FooContext, 'foo'],
+    [BarContext, 'bar'],
+  ],
 });
 
-const [instance, updateInstance] = createInstance({ foo: 'bar' });
-
-...
-
-updateInstance({ foo: 'baz' })
+const instance = createInstance({ foo: 'bar' });
 ```
 
 ### Worker `connect`

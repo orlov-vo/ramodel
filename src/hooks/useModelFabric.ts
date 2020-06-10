@@ -1,62 +1,46 @@
 // Copyright 2020 the RaModel authors. All rights reserved. MIT license.
 
 import type { ModelClass } from '../core/createModel';
+import type { BaseModel } from '../core/types';
 import type { Context } from '../core/createContext';
-import { update } from '../core/update';
+import { getModelInExecuting, setModelInExecuting } from '../core/createModel';
 import { destroy, onDestroy } from '../core/destroy';
 import { useEffect } from './useEffect';
 import { useCallback } from './useCallback';
 import { useRef } from './useRef';
 
-type UseModelOptions<Input> = {
-  input?: Input;
+type UseModelOptions = {
   contexts?: Array<[Context<any>, any]>;
 };
 
 export function useModelFabric<Input extends object, Public extends object>(
   Model: ModelClass<Input, Public>,
-  options: UseModelOptions<Input> = {},
-): (input: Input) => readonly [Public, (newInput: Input) => void] {
+  options: UseModelOptions = {},
+): (input?: Input) => Public & BaseModel<Input, Public> {
   const { contexts = [] } = options;
 
-  const instances = useRef(new Map());
+  const instances = useRef(new Set<BaseModel>());
+  const parent = getModelInExecuting();
 
   // Create instance with contexts
-  const createInstance = useCallback(
-    (input: Input) => {
-      const create = contexts.reduce(
-        (acc, [context, value]) => () => context.withValue(value, acc),
-        () => new Model({ ...options.input, ...input }),
-      );
+  const createInstance = useCallback((input = {} as Input) => {
+    const create = contexts.reduce(
+      (acc, [context, value]) => () => context.withValue(value, acc),
+      () => new Model(input),
+    );
 
-      const instance = create();
+    const instance = setModelInExecuting(parent, create);
+    instances.current.add(instance);
 
-      instances.current.set(instance, input);
+    return instance;
+  }, contexts.flat());
 
-      return [
-        instance,
-        (newInput: Input) => {
-          update(instance, newInput);
-          instances.current.set(instance, newInput);
-        },
-      ] as const;
-    },
-    [contexts, options.input],
-  );
-
-  // Update instance's input on every change
-  useEffect(() => {
-    Array.from(instances.current.entries()).forEach(([instance, input]) => {
-      update(instance, { ...options.input, ...input });
-    });
-  }, [options.input]);
-
-  // Update instance's contexts on every change
+  // Update instance's contexts on every change in them
   const oldContext = useRef([] as typeof contexts);
   useEffect(() => {
     const removedContexts = oldContext.current
-      .filter(([contextA]) => !contexts.some(([contextB]) => contextA === contextB))
-      .map(([context]) => context);
+      .map(([context]) => context)
+      .filter(contextA => !contexts.some(([contextB]) => contextA === contextB));
 
     Array.from(instances.current.keys()).forEach(instance => {
       removedContexts.forEach(context => context.removeFrom(instance));
@@ -67,7 +51,7 @@ export function useModelFabric<Input extends object, Public extends object>(
     });
 
     oldContext.current = contexts;
-  });
+  }, contexts.flat());
 
   // Destroy instance on teardown
   useEffect(() => {
