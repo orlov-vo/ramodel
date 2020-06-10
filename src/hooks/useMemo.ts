@@ -3,12 +3,13 @@
 
 import { hook, Hook } from '../core/hook';
 import { State } from '../core/state';
+import { hasChanged } from './hasChanged';
 
 export const useMemo = hook(
   class Memo<T> extends Hook {
     value: T;
 
-    values: unknown[];
+    values?: unknown[];
 
     constructor(id: number, state: State, fn: () => T, values: unknown[]) {
       super(id, state);
@@ -16,16 +17,12 @@ export const useMemo = hook(
       this.values = values;
     }
 
-    update(fn: () => T, values: unknown[]): T {
-      if (this.hasChanged(values)) {
+    update(fn: () => T, values?: unknown[]): T {
+      if (hasChanged(values, this.values)) {
         this.values = values;
         this.value = fn();
       }
       return this.value;
-    }
-
-    hasChanged(values: unknown[] = []): boolean {
-      return values.some((value, i) => this.values[i] !== value);
     }
   },
 );

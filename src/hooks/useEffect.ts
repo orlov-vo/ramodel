@@ -5,6 +5,7 @@ import { VoidFunction } from '../core/types';
 import { EFFECTS } from '../core/symbols';
 import { Hook, hook } from '../core/hook';
 import { State } from '../core/state';
+import { hasChanged } from './hasChanged';
 
 type Effect = (this: State) => void | VoidFunction;
 
@@ -30,9 +31,8 @@ export const useEffect = hook(
     }
 
     call(): void {
-      if (!this.values || this.hasChanged()) {
-        this.run();
-      }
+      if (!hasChanged(this.values, this.lastValues)) return;
+      this.run();
     }
 
     run(): void {
@@ -41,13 +41,8 @@ export const useEffect = hook(
     }
 
     teardown(): void {
-      if (typeof this._teardown === 'function') {
-        this._teardown();
-      }
-    }
-
-    hasChanged(): boolean {
-      return !this.lastValues || this.values!.some((value, i) => this.lastValues![i] !== value);
+      if (typeof this._teardown !== 'function') return;
+      this._teardown();
     }
   },
 );
