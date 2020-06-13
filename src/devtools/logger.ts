@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 import { diff as differ, Diff } from 'deep-diff';
 import cloneDeep from 'lodash.clonedeep';
 import { createLens, watch } from '../core/mod';

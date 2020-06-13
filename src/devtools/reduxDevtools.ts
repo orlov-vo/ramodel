@@ -1,3 +1,5 @@
+// Copyright 2020 the RaModel authors. All rights reserved. MIT license.
+
 import cloneDeep from 'lodash.clonedeep';
 import { createLens, watch } from '../core/mod';
 
