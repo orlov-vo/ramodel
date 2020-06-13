@@ -3,46 +3,42 @@
 
 import { VoidFunction } from '../core/types';
 import { EFFECTS } from '../core/symbols';
-import { Hook, hook } from '../core/hook';
+import { createHook } from '../core/hook';
 import { State } from '../core/state';
 import { hasChanged } from './hasChanged';
 
 type Effect = (this: State) => void | VoidFunction;
 
-export const useEffect = hook(
-  class extends Hook {
-    callback!: Effect;
+type EffectState = {
+  callback: Effect;
+  teardown: VoidFunction | void;
+  lastValues?: unknown[];
+  values?: unknown[];
+};
 
-    lastValues?: unknown[];
+export const useEffect = createHook((state: State) => {
+  const effectState = {} as EffectState;
 
-    values?: unknown[];
+  const teardown = (): void => {
+    if (typeof effectState.teardown !== 'function') return;
+    effectState.teardown();
+  };
 
-    _teardown!: VoidFunction | void;
+  const run = (): void => {
+    teardown();
+    effectState.teardown = effectState.callback.call(state);
+  };
 
-    constructor(id: number, state: State, _effect: Effect, _values?: unknown[]) {
-      super(id, state);
-      state[EFFECTS].push(this);
-    }
+  const update = (callback: Effect, values?: unknown[]): void => {
+    effectState.callback = callback;
+    effectState.lastValues = effectState.values;
+    effectState.values = values;
+  };
 
-    update(callback: Effect, values?: unknown[]): void {
-      this.callback = callback;
-      this.lastValues = this.values;
-      this.values = values;
-    }
+  state[EFFECTS].push(() => {
+    if (!hasChanged(effectState.values, effectState.lastValues)) return;
+    run();
+  });
 
-    call(): void {
-      if (!hasChanged(this.values, this.lastValues)) return;
-      this.run();
-    }
-
-    run(): void {
-      this.teardown();
-      this._teardown = this.callback.call(this.state);
-    }
-
-    teardown(): void {
-      if (typeof this._teardown !== 'function') return;
-      this._teardown();
-    }
-  },
-);
+  return { update, teardown };
+});

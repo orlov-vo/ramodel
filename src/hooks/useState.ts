@@ -1,39 +1,37 @@
 // Copyright 2020 the RaModel authors. All rights reserved. MIT license.
 // Copyright 2018-2019 Matthew Phillips. All rights reserved. BSD 2-Clause license.
 
-import { hook, Hook } from '../core/hook';
+import { createHook } from '../core/hook';
 import { State } from '../core/state';
 
 type NewState<T> = T | ((previousState: T) => T);
 type StateUpdater<T> = (value: NewState<T>) => Promise<void>;
 
-export const useState = hook(
-  class<T> extends Hook {
-    args!: readonly [T, StateUpdater<T>];
+export const useState = createHook(<T>(state: State) => {
+  let args: readonly [T, StateUpdater<T>];
 
-    constructor(id: number, state: State, initialValue: T) {
-      super(id, state);
-      this.updater = this.updater.bind(this);
+  const makeArgs = (value: T): void => {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    args = Object.freeze([value, updater] as const);
+  };
 
-      this.makeArgs(typeof initialValue === 'function' ? initialValue() : initialValue);
+  const updater = async (value: NewState<T>): Promise<void> => {
+    const [previousValue] = args;
+    const newValue = typeof value === 'function' ? (value as (previousState?: T) => T)(previousValue) : value;
+
+    if (newValue !== previousValue) {
+      makeArgs(newValue);
+      await state.update();
     }
+  };
 
-    update(): readonly [T, StateUpdater<T>] {
-      return this.args;
-    }
-
-    async updater(value: NewState<T>): Promise<void> {
-      const [previousValue] = this.args;
-      const newValue = typeof value === 'function' ? (value as (previousState?: T) => T)(previousValue) : value;
-
-      if (newValue !== previousValue) {
-        this.makeArgs(newValue);
-        await this.state.update();
+  return {
+    update: (initialValue: T): typeof args => {
+      if (args === undefined) {
+        makeArgs(typeof initialValue === 'function' ? initialValue() : initialValue);
       }
-    }
 
-    makeArgs(value: T): void {
-      this.args = Object.freeze([value, this.updater] as const);
-    }
-  },
-);
+      return args;
+    },
+  };
+});

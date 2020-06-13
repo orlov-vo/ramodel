@@ -1,37 +1,33 @@
 // Copyright 2020 the RaModel authors. All rights reserved. MIT license.
 
-import { hook, Hook } from '../core/hook';
+import { createHook } from '../core/hook';
 import { State } from '../core/state';
 import { Context } from '../core/createContext';
 import { CONTEXTS, PARENT } from '../core/symbols';
 import { BaseModel } from '../core/types';
 
-export const useContext = hook(
-  class ContextHook<T> extends Hook {
-    context: Context<T>;
+export const useContext = createHook(<T>(state: State<BaseModel>) => {
+  let usedContext: Context<T> | null = null;
 
-    constructor(id: number, state: State, context: Context<T>) {
-      super(id, state);
-      this.context = context;
+  return {
+    update: (context: Context<T>) => {
+      if (context !== usedContext) {
+        context.use(state.host);
+        usedContext = context;
+      }
 
-      this.context.use(this.state.host as BaseModel);
-    }
+      let instance: BaseModel | null = state.host;
 
-    update(context: Context<T>): T {
-      this.context = context;
-
-      let host: BaseModel | null = this.state.host as BaseModel;
-
-      while (host) {
-        const contexts = host[CONTEXTS];
-        if (contexts.has(this.context)) {
-          return contexts.get(this.context) as T;
+      while (instance) {
+        const contexts = instance[CONTEXTS];
+        if (contexts.has(context)) {
+          return contexts.get(context) as T;
         }
 
-        host = host[PARENT];
+        instance = instance[PARENT];
       }
 
       return context.defaultValue;
-    }
-  },
-);
+    },
+  };
+});

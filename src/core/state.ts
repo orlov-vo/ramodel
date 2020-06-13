@@ -6,16 +6,14 @@ import { HOOK, EFFECTS } from './symbols';
 import { Hook } from './hook';
 import { setCurrent, clear } from './stateInterface';
 
-export interface Callable {
-  call: (state: State) => void;
-}
+type Callable = (state: State) => void;
 
 export class State<H = unknown> {
   update: AsyncVoidFunction;
 
   host: H;
 
-  [HOOK]: Map<number, Hook>;
+  [HOOK]: Map<number, Hook<unknown[], unknown>>;
 
   [EFFECTS]: Callable[];
 
@@ -38,7 +36,7 @@ export class State<H = unknown> {
     const effects = this[EFFECTS];
 
     setCurrent(this);
-    effects.forEach(effect => effect.call(this));
+    effects.forEach(effect => effect(this));
     clear();
   }
 

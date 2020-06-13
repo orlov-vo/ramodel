@@ -5,42 +5,28 @@ import { HOOK } from './symbols';
 import { notify } from './stateInterface';
 import { State } from './state';
 
-export abstract class Hook<P extends unknown[] = unknown[], R = unknown, H = unknown> {
-  id: number;
+export type Hook<P extends unknown[], R = unknown> = {
+  update: (...args: P) => R;
+  teardown?: () => void;
+};
 
-  state: State<H>;
+type HookCreator<P extends unknown[], R = unknown, H = unknown> = (state: State<H>) => Hook<P, R>;
 
-  constructor(id: number, state: State<H>) {
-    this.id = id;
-    this.state = state;
-  }
+export function createHook<P extends unknown[], R, H = unknown>(hookCreator: HookCreator<P, R, H>): (...args: P) => R {
+  return (...args: P): R => {
+    const { id, state } = notify();
 
-  abstract update(...args: P): R;
+    if (!state) {
+      throw new Error('Use hooks only inside models');
+    }
 
-  teardown?(): void;
-}
+    const hooks = state[HOOK] as Map<number, Hook<P, R>>;
+    let currentHook = hooks.get(id);
+    if (!currentHook) {
+      currentHook = hookCreator(state as State<H>);
+      hooks.set(id, currentHook);
+    }
 
-interface CustomHook<P extends unknown[] = unknown[], R = unknown, H = unknown> {
-  new (id: number, state: State<H>, ...args: P): Hook<P, R, H>;
-}
-
-function use<P extends unknown[], R, H = unknown>(HookClass: CustomHook<P, R, H>, ...args: P): R {
-  const { id, state } = notify();
-
-  if (!state) {
-    throw new Error('Use hooks only inside models');
-  }
-
-  const hooks = state[HOOK];
-  let currentHook = hooks.get(id) as Hook<P, R, H> | undefined;
-  if (!currentHook) {
-    currentHook = new HookClass(id, state as State<H>, ...args);
-    hooks.set(id, currentHook);
-  }
-
-  return currentHook.update(...args);
-}
-
-export function hook<P extends unknown[], R, H = unknown>(HookClass: CustomHook<P, R, H>): (...args: P) => R {
-  return use.bind<null, CustomHook<P, R, H>, P, R>(null, HookClass);
+    return currentHook.update(...args);
+  };
 }
