@@ -1,6 +1,6 @@
 {
   "name": "ramodel",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Framework for creating reactive models",
   "keywords": [
     "reactive",
