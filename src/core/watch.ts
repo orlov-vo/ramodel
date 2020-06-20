@@ -57,6 +57,7 @@ export function watch<R>(
 ): UnsubscribeFn {
   const memoizedHandler = memoizeOne(handler);
   let unsubscribes: UnsubscribeFn[] = [];
+  let unloaded = false;
 
   let lastTick: Promise<void> | null = null;
   const debounceTick = () => {
@@ -71,6 +72,8 @@ export function watch<R>(
   const tick = () => {
     lastTick = null;
     unsubscribes.forEach(fn => fn());
+
+    if (unloaded) return;
 
     if (Array.isArray(lenses)) {
       const lensState = lenses.map(update => update());
@@ -102,6 +105,7 @@ export function watch<R>(
   tick();
 
   return () => {
+    unloaded = true;
     unsubscribes.forEach(fn => fn());
   };
 }
