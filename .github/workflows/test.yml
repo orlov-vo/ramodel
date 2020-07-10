@@ -31,7 +31,7 @@ jobs:
       run: yarn
     
     - name: 🤹 Run Linter
-      run: yarn test
+      run: yarn lint
 
     - name: 🏄 Run Tests
       run: yarn test
