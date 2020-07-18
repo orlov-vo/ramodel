@@ -8,6 +8,7 @@ import { createEventEmitter } from './eventEmitter';
 import { watch } from './watch';
 
 export interface Lens<R> {
+  _brand: 'lens';
   (): { models: BaseModel[]; result: R };
   subscribe: (subscribeHandler: (value: R) => void) => VoidFunction;
   toString: () => string;
@@ -25,6 +26,11 @@ function subscribe<M extends BaseModel>(handler: Handler<M>): () => void {
 
 export function notify<M extends BaseModel>(model: M, key: string | number | symbol, value: unknown) {
   eventEmitter.emit(EVENT_NAME, model, key, value);
+}
+
+export function isLens(value: unknown): value is Lens<unknown> {
+  // eslint-disable-next-line no-underscore-dangle
+  return typeof value === 'function' && (value as Lens<unknown>)._brand === 'lens';
 }
 
 export function createLens<T, R>(value: T, selector: Accessor<T, R>): Lens<R> {
@@ -45,6 +51,8 @@ export function createLens<T, R>(value: T, selector: Accessor<T, R>): Lens<R> {
     return { models: Array.from(models), result };
   };
 
+  // eslint-disable-next-line no-underscore-dangle
+  lens._brand = 'lens' as const;
   lens.toString = () => String(lens().result);
   lens.subscribe = (subscribeHandler: (value: R) => void): VoidFunction => watch(lens, subscribeHandler);
 
@@ -120,6 +128,8 @@ export function combineLenses<Result, R>(
     return { models, result: memoizedHandler(results) };
   };
 
+  // eslint-disable-next-line no-underscore-dangle
+  lens._brand = 'lens' as const;
   lens.toString = () => String(lens().result);
   lens.subscribe = (subscribeHandler: (value: Result) => void): VoidFunction => watch(lens, subscribeHandler);
 

@@ -38,4 +38,14 @@ describe('useLens', () => {
     expect(instance).toHaveProperty('value', 'bar');
     expect(parent).toHaveProperty('value', 'bar');
   });
+
+  test('should create lens myself', async () => {
+    const foo = createInstance({}, () => ({ bar: 'baz' }));
+    const instance = createInstance({}, () => {
+      const value = useLens(foo, _ => _.bar);
+      return { value };
+    });
+
+    expect(instance).toHaveProperty('value', 'baz');
+  });
 });

@@ -150,11 +150,17 @@ Most often you only need to use lenses and a [`watch`](#watch) method for subscr
 ```js
 import { useLens } from 'ramodel/react'; // or from 'ramodel/preact'
 import { odometerLens } from './lenses';
+import { driver } from './instances';
 
 function App() {
   const odometer = useLens(odometerLens);
+  const driverName = useLens(driver, _ => _.name);
 
-  return <div>{odometer} miles</div>;
+  return (
+    <div>
+      {driverName}: {odometer} miles
+    </div>
+  );
 }
 ```
 
@@ -185,6 +191,7 @@ Sorry but I don't know these frameworks deeply to write good integration with th
   - Lenses
     - [`createLens`](#createlens)
     - [`combineLenses`](#combinelenses)
+    - [`isLens`](#islens)
     - [`watch`](#watch)
   - Helpers
     - [`createContext`](#createcontext)
@@ -306,6 +313,18 @@ const lens = combineLenses(lenses, handler);
 ```
 
 Combine lenses in the one. It is very handly when you need to calculate value which depends on multiple lenses.
+
+### `isLens`
+
+```js
+import { isLens } from 'ramodel';
+
+if (isLens(maybeLens)) {
+  // `maybeLens` is definitely lens here
+}
+```
+
+You can check your value that this is exactly a lens with `isLens` method.
 
 ### `watch`
 
@@ -638,9 +657,11 @@ Keep in mind that `useRef` doesn’t notify you when its content changes. Mutati
 import { useLens } from 'ramodel/hooks';
 
 const value = useLens(lens);
+// or you can embed lens creating:
+const value = useLens(instance, _ => _.value);
 ```
 
-With `useLens` hook you can get current value from the lens (which can created with [`createLens`](#createlens) or [`combineLenses`](#combinelenses)) and all subsequent values ​​in updates.
+With `useLens` hook you can get current value from the lens (which can created with [`createLens`](#createlens) or [`combineLenses`](#combinelenses)) and all subsequent values ​​in updates. Also you can embed lens creating to this hook if you pass arguments to this hook as for [`createLens`](#createlens) method.
 
 ### `useModel`
 
