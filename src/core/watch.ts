@@ -72,6 +72,7 @@ export function watch<R>(
   const tick = () => {
     lastTick = null;
     unsubscribes.forEach(fn => fn());
+    unsubscribes = [];
 
     if (unloaded) return;
 
@@ -107,5 +108,6 @@ export function watch<R>(
   return () => {
     unloaded = true;
     unsubscribes.forEach(fn => fn());
+    unsubscribes = [];
   };
 }
