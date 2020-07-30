@@ -68,6 +68,68 @@ export function setModelInExecuting<R>(model: typeof modelInExecuting, fn: () =>
   return result;
 }
 
+const PROXY_HANDLER: ProxyHandler<BaseModel> = {
+  getPrototypeOf(target) {
+    return target;
+  },
+
+  get(target, key, _reciver) {
+    // Always provide original properties if them exists
+    if (key in target) {
+      return (target as any)[key];
+    }
+
+    const result = getFreshResult(target);
+    if (result == null) {
+      return undefined;
+    }
+
+    const value = (result as any)[key];
+    notify(target, key, value);
+
+    return value;
+  },
+
+  set(target, key, value, _reciver) {
+    // Allow writing only to internal fields in the instance
+    if (key in target) {
+      // eslint-disable-next-line no-param-reassign
+      (target as any)[key] = value;
+      return true;
+    }
+
+    return false;
+  },
+
+  has(target, key) {
+    if (key in target) {
+      return true;
+    }
+
+    const result = getFreshResult(target);
+    return result != null ? key in result : false;
+  },
+
+  deleteProperty(_target, _key) {
+    // Deny any deleting property
+    return false;
+  },
+
+  ownKeys(target) {
+    const result = getFreshResult(target);
+    return result != null ? Object.keys(result) : [];
+  },
+
+  getOwnPropertyDescriptor(target, key) {
+    if (key in target) {
+      return Object.getOwnPropertyDescriptor(target, key);
+    }
+
+    const result = getFreshResult(target);
+    return result != null ? Object.getOwnPropertyDescriptor(result, key) : undefined;
+  },
+};
+
 /**
  * Create a new model
  *
@@ -143,67 +205,7 @@ export function createModel<Input extends object, Public extends object>(
 
       // Return reference to proxy-object.
       // It's needed for passing properties and making them read-only in the instance
-      return new Proxy(this, {
-        getPrototypeOf(target) {
-          return target;
-        },
-
-        get(target, key, _reciver) {
-          // Always provide original properties if them exists
-          if (key in target) {
-            return (target as any)[key];
-          }
-
-          const result = getFreshResult(target);
-          if (result == null) {
-            return undefined;
-          }
-
-          const value = (result as any)[key];
-          notify(target, key, value);
-
-          return value;
-        },
-
-        set(target, key, value, _reciver) {
-          // Allow writing only to internal fields in the instance
-          if (key in target) {
-            // eslint-disable-next-line no-param-reassign
-            (target as any)[key] = value;
-            return true;
-          }
-
-          return false;
-        },
-
-        has(target, key) {
-          if (key in target) {
-            return true;
-          }
-
-          const result = getFreshResult(target);
-          return result != null ? key in result : false;
-        },
-
-        deleteProperty(_target, _key) {
-          // Deny any deleting property
-          return false;
-        },
-
-        ownKeys(target) {
-          const result = getFreshResult(target);
-          return result != null ? Object.keys(result) : [];
-        },
-
-        getOwnPropertyDescriptor(target, key) {
-          if (key in target) {
-            return Object.getOwnPropertyDescriptor(target, key);
-          }
-
-          const result = getFreshResult(target);
-          return result != null ? Object.getOwnPropertyDescriptor(result, key) : undefined;
-        },
-      });
+      return new Proxy(this, PROXY_HANDLER);
     }
   }
 
