@@ -12,7 +12,7 @@ Can works together with [**React**](#react-and-preact), [**Preact**](#react-and-
 - **Hooks.** It has Hooks like it made in [React](https://reactjs.org/docs/hooks-reference.html).
 - **Fast**. It has many performance optimization to track changes only from needed instances.
 - **Typed.** The library provide full coverage typings via TypeScript.
-- **Contexts.** It has simple API to communicate between different contexts.
+- **Contexts.** It has painless API to communicate with another execution contexts (eg. WebWorker, Node.js).
 - **Small.** We try to minimize distributed size and use tiny dependencies.
 
 [![Version](https://img.shields.io/npm/v/ramodel)](https://www.npmjs.com/package/ramodel)
