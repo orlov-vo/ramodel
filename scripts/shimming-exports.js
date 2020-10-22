@@ -13,7 +13,8 @@ async function main() {
       const normalizePath = relativePath => path.relative(packageDir, path.resolve(process.cwd(), relativePath));
 
       const content = {
-        main: normalizePath(exports.default),
+        main: normalizePath(exports.require || exports.default),
+        module: normalizePath(exports.import || exports.default),
         types: normalizePath(exports.types),
       };
 

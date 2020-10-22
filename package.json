@@ -7,7 +7,8 @@
     "hooks",
     "model"
   ],
-  "main": "dist/core/mod.js",
+  "main": "dist/bundled/core/mod.js",
+  "module": "dist/core/mod.js",
   "types": "dist/core/mod.d.ts",
   "author": "the RaModel authors",
   "homepage": "https://github.com/orlov-vo/ramodel#readme",
@@ -23,40 +24,48 @@
   "exports": {
     ".": {
       "types": "./dist/core/mod.d.ts",
+      "require": "./dist/bundled/core/mod.js",
       "default": "./dist/core/mod.js"
     },
     "./hooks": {
       "types": "./dist/hooks/mod.d.ts",
+      "require": "./dist/bundled/hooks/mod.js",
       "default": "./dist/hooks/mod.js"
     },
     "./remote": {
       "types": "./dist/remote/mod.d.ts",
+      "require": "./dist/bundled/remote/mod.js",
       "default": "./dist/remote/mod.js"
     },
     "./remote/worker": {
       "types": "./dist/remote/worker/mod.d.ts",
+      "require": "./dist/bundled/remote/worker/mod.js",
       "default": "./dist/remote/worker/mod.js"
     },
     "./remote/global": {
       "types": "./dist/remote/global/mod.d.ts",
+      "require": "./dist/bundled/remote/global/mod.js",
       "default": "./dist/remote/global/mod.js"
     },
     "./devtools": {
       "types": "./dist/devtools/mod.d.ts",
+      "require": "./dist/bundled/devtools/mod.js",
       "default": "./dist/devtools/mod.js"
     },
     "./react": {
       "types": "./dist/react/mod.d.ts",
+      "require": "./dist/bundled/react/mod.js",
       "default": "./dist/react/mod.js"
     },
     "./preact": {
       "types": "./dist/preact/mod.d.ts",
+      "require": "./dist/bundled/preact/mod.js",
       "default": "./dist/preact/mod.js"
     }
   },
   "scripts": {
     "clean": "rimraf dist",
-    "build": "yarn clean && tsc",
+    "build": "yarn clean && esbuild --bundle --outdir=dist/bundled --sourcemap src/**/mod.ts && tsc",
     "test": "jest",
     "lint": "eslint src --ext .ts,.tsx",
     "format": "prettier --write \"src/**/*.ts\"",
@@ -89,6 +98,7 @@
     "@types/react": "^16.9.35",
     "@typescript-eslint/eslint-plugin": "^2.30.0",
     "@typescript-eslint/parser": "^2.30.0",
+    "esbuild": "^0.7.19",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-typescript": "^7.2.1",
     "eslint-config-prettier": "^6.11.0",
