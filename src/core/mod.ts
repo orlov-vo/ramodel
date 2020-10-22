@@ -6,5 +6,6 @@ export { createContext } from './createContext';
 export { destroy } from './destroy';
 export { get } from './get';
 export { createLens, combineLenses, isLens } from './lens';
+export { isModel } from './isModel';
 export { update } from './update';
 export { watch } from './watch';
