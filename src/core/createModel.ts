@@ -177,6 +177,7 @@ export function createModel<Input extends object, Public extends object>(
 
       /** Handler for reading phase */
       const onRun = () => setModelInExecuting(this, () => run(this[INPUT]));
+      Object.defineProperty(onRun, 'name', { value: this.constructor.name });
 
       // Create and connect scheduler to the instance
       const scheduler = new Scheduler(onRun, onCommit, this);

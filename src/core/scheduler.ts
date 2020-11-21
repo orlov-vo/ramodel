@@ -4,6 +4,7 @@
 import { VoidFunction, GenericFunction } from './types';
 import { State } from './state';
 import { createEventEmitter } from './eventEmitter';
+import { HOOK } from './symbols';
 
 type TaskBox = { task: VoidFunction | null };
 
@@ -78,7 +79,7 @@ export class Scheduler<R extends GenericFunction, C extends GenericFunction, H> 
 
   _tasks: Record<string, Tasks> = {};
 
-  _isInUpdateQueued: boolean = false;
+  _updatePromise: Promise<void> | null = null;
 
   constructor(runFn: R, commitFn: C, host: H) {
     this.runFn = runFn;
@@ -133,12 +134,29 @@ export class Scheduler<R extends GenericFunction, C extends GenericFunction, H> 
    */
   async update(): Promise<void> {
     if (this._isDestroyed) return;
-    if (this._isInUpdateQueued) return;
+    if (this._updatePromise) {
+      await this._updatePromise;
+      return;
+    }
 
-    await new Promise(resolve => {
+    this._updatePromise = new Promise((resolve, reject) => {
       this._tasks.read.run(() => {
         // Update phase
+        const prevHooksCount = this.state[HOOK].size;
         const result = this.state.run(this.runFn);
+        const nextHooksCount = this.state[HOOK].size;
+
+        this._updatePromise = null;
+
+        if (prevHooksCount && prevHooksCount !== nextHooksCount) {
+          const errorMessage = [
+            `It seems you change count of hooks in ${this.runFn.name}.`,
+            'Often it can happen when you are using if/loop statements in model.',
+          ].join(' ');
+
+          reject(new Error(errorMessage));
+          return;
+        }
 
         this._tasks.commit.run(() => {
           // Commit phase
@@ -150,11 +168,10 @@ export class Scheduler<R extends GenericFunction, C extends GenericFunction, H> 
             this.state.runEffects();
           });
         });
-
-        this._isInUpdateQueued = false;
       });
-      this._isInUpdateQueued = true;
     });
+
+    await this._updatePromise;
   }
 
   teardown(): void {
