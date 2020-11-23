@@ -37,6 +37,11 @@
       "require": "./dist/cjs/remote/mod.js",
       "default": "./dist/remote/mod.js"
     },
+    "./remote/generic": {
+      "types": "./dist/remote/generic/mod.d.ts",
+      "require": "./dist/cjs/remote/generic/mod.js",
+      "default": "./dist/remote/generic/mod.js"
+    },
     "./remote/worker": {
       "types": "./dist/remote/worker/mod.d.ts",
       "require": "./dist/cjs/remote/worker/mod.js",
@@ -46,6 +51,11 @@
       "types": "./dist/remote/global/mod.d.ts",
       "require": "./dist/cjs/remote/global/mod.js",
       "default": "./dist/remote/global/mod.js"
+    },
+    "./remote/local-storage": {
+      "types": "./dist/remote/local-storage/mod.d.ts",
+      "require": "./dist/cjs/remote/local-storage/mod.js",
+      "default": "./dist/remote/local-storage/mod.js"
     },
     "./devtools": {
       "types": "./dist/devtools/mod.d.ts",

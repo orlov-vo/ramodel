@@ -209,12 +209,18 @@ Sorry but I don't know these frameworks deeply to write good integration with th
     - [`useLens`](#uselens)
     - [`useModel`](#usemodel)
     - [`useModelFabric`](#usemodelfabric)
+- `ramodel/remote/generic`
+  - [`connect`](#generic-connect)
+  - [`expose`](#generic-expose)
 - `ramodel/remote/worker`
   - [`connect`](#worker-connect)
   - [`expose`](#worker-expose)
 - `ramodel/remote/global`
   - [`connect`](#global-connect)
   - [`expose`](#global-expose)
+- `ramodel/remote/local-storage`
+  - [`connect`](#local-storage-connect)
+  - [`expose`](#local-storage-expose)
 - `ramodel/devtools`
   - [`createLogger`](#createlogger)
   - [`connectReduxDevtools`](#connectreduxdevtools)
@@ -694,6 +700,51 @@ const createInstance = useModelFabric(Model, {
 const instance = createInstance({ foo: 'bar' });
 ```
 
+### Generic `connect`
+
+```js
+import { connect } from 'ramodel/generic/generic';
+
+const clientId = 'website';
+const webSocket = new WebSocketChannel();
+const remoteWorld = connect({
+  postMessage: msg => sendMessage(msg, { clientId }),
+  onInit: ({ onMessage }) => {
+    webSocket.listen('message', data => {
+      const { message, ...meta } = JSON.parse(data);
+      if (clientId !== meta.clientId) return;
+
+      onMessage(message);
+    });
+  },
+});
+
+const myRemoteModel = await remoteWorld.get('my-model');
+
+// Now you can use `myRemoteModel` like local model
+// But it continue live in the background page's process
+```
+
+### Generic `expose`
+
+```js
+import { expose } from 'ramodel/remote/generic';
+
+const webSocket = new WebSocketChannel();
+const world = expose({
+  onInit: ({ onMessage }) => {
+    webSocket.listen('message', data => {
+      const { message, ...meta } = JSON.parse(data);
+      if (!meta.clientId) return;
+
+      onMessage(message, data => sendMessage(key, data, { clientId: meta.clientId }));
+    });
+  },
+});
+
+world.set('my-model', myLocalModel);
+```
+
 ### Worker `connect`
 
 ```js
@@ -739,6 +790,27 @@ import { expose } from 'ramodel/remote/global';
 
 const backgroundWindow = chrome.extension.getBackgroundPage();
 const world = expose(backgroundWindow);
+world.set('my-model', myLocalModel);
+```
+
+### LocalStorage `connect`
+
+```js
+import { connect } from 'ramodel/remote/local-storage';
+
+const remoteWorld = connect();
+const myRemoteModel = await remoteWorld.get('my-model');
+
+// Now you can use `myRemoteModel` like local model
+// But it continue live in the background page's process
+```
+
+### LocalStorage `expose`
+
+```js
+import { expose } from 'ramodel/remote/local-storage';
+
+const world = expose();
 world.set('my-model', myLocalModel);
 ```
 
