@@ -221,6 +221,9 @@ Sorry but I don't know these frameworks deeply to write good integration with th
 - `ramodel/remote/local-storage`
   - [`connect`](#local-storage-connect)
   - [`expose`](#local-storage-expose)
+- `ramodel/remote/chrome`
+  - [`connect`](#chrome-connect)
+  - [`expose`](#chrome-expose)
 - `ramodel/devtools`
   - [`createLogger`](#createlogger)
   - [`connectReduxDevtools`](#connectreduxdevtools)
@@ -809,6 +812,27 @@ const myRemoteModel = await remoteWorld.get('my-model');
 
 ```js
 import { expose } from 'ramodel/remote/local-storage';
+
+const world = expose();
+world.set('my-model', myLocalModel);
+```
+
+### Chrome `connect`
+
+```js
+import { connect } from 'ramodel/remote/chrome';
+
+const remoteWorld = connect();
+const myRemoteModel = await remoteWorld.get('my-model');
+
+// Now you can use `myRemoteModel` like local model
+// But it continue live in the background page's process
+```
+
+### Chrome `expose`
+
+```js
+import { expose } from 'ramodel/remote/chrome';
 
 const world = expose();
 world.set('my-model', myLocalModel);

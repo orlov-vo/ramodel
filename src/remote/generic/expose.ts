@@ -9,19 +9,20 @@ import { onDestroy, destroy } from '../../core/destroy';
 import { GET_MODEL, CALL_FUNCTION, SUBSCRIBE_UPDATES, UNSUBSCRIBE_UPDATES } from '../constants';
 import { LocalWorld } from '../LocalWorld';
 import { serialize } from '../serialize';
+import type { Message, ErrorMessage } from './typings';
 
 type ExportId = number | string;
 type UnsubscribeFn = () => void;
 
-type Message<T extends string, Q = any, P = any> = { type: T; query: Q; payload: P };
-type ErrorMessage<T extends string, Q = any, E = any> = { type: T; query: Q; error: E };
-type PostMessage<T extends string, Q = any, P = any, E = any> = (msg: Message<T, Q, P> | ErrorMessage<T, Q, E>) => void;
+type PostMessageFn<T extends string, Q = any, P = any, E = any> = (
+  msg: Message<T, Q, P> | ErrorMessage<T, Q, E>,
+) => void;
 
 type GetModelOptions = { dwellers: Record<string, unknown>; getExportId: (instance: object) => ExportId };
 
 const onGetModel = ({ dwellers, getExportId }: GetModelOptions) => (
   message: Message<typeof GET_MODEL, string, unknown>,
-  postMessage: PostMessage<typeof GET_MODEL, string, unknown>,
+  postMessage: PostMessageFn<typeof GET_MODEL, string, unknown>,
 ) => {
   const { query } = message;
   const model = dwellers[query];
@@ -49,7 +50,7 @@ type CallFunctionOptions = {
 
 const onCallFunction = ({ getExportedFunction, getExportId }: CallFunctionOptions) => async (
   message: Message<typeof CALL_FUNCTION, ExportId, unknown[]>,
-  postMessage: PostMessage<typeof CALL_FUNCTION, ExportId, unknown>,
+  postMessage: PostMessageFn<typeof CALL_FUNCTION, ExportId, unknown>,
 ) => {
   const { query, payload } = message;
 
@@ -78,7 +79,7 @@ type SubscribeUpdatesOptions = {
 
 const onSubscribeUpdates = ({ getExportedModel, getExportId, registerUnsubscribe }: SubscribeUpdatesOptions) => (
   message: Message<typeof SUBSCRIBE_UPDATES, ExportId, unknown>,
-  postMessage: PostMessage<typeof SUBSCRIBE_UPDATES, ExportId, unknown>,
+  postMessage: PostMessageFn<typeof SUBSCRIBE_UPDATES, ExportId, unknown>,
 ) => {
   const { query } = message;
 
@@ -112,7 +113,7 @@ type UnsubscribeUpdatesOptions = {
 
 const onUnsubscribeUpdates = ({ getUnsubscribe, unregisterUnsubscribe }: UnsubscribeUpdatesOptions) => (
   message: Message<typeof SUBSCRIBE_UPDATES, ExportId, unknown>,
-  postMessage: PostMessage<typeof UNSUBSCRIBE_UPDATES, ExportId, unknown>,
+  postMessage: PostMessageFn<typeof UNSUBSCRIBE_UPDATES, ExportId, unknown>,
 ) => {
   const { query } = message;
 
@@ -131,7 +132,7 @@ const onUnsubscribeUpdates = ({ getUnsubscribe, unregisterUnsubscribe }: Unsubsc
   unregisterUnsubscribe(query);
 };
 
-type OnInit = (init: { onMessage: (message: Message<string>, postMessage: PostMessage<string>) => void }) => void;
+type OnInit = (init: { onMessage: (message: Message<string>, postMessage: PostMessageFn<string>) => void }) => void;
 
 export function expose({ onInit }: { onInit: OnInit }): LocalWorld {
   const localWorld = new LocalWorld({
@@ -194,7 +195,7 @@ export function expose({ onInit }: { onInit: OnInit }): LocalWorld {
   } as const;
 
   onInit({
-    onMessage: (message: Message<string>, postMessage: PostMessage<string>): void => {
+    onMessage: (message: Message<string>, postMessage: PostMessageFn<string>): void => {
       const { type } = message;
 
       const handler = messageHandlers[type as keyof typeof messageHandlers];

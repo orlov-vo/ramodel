@@ -5,22 +5,20 @@ import { onDestroy } from '../../core/destroy';
 import { RemoteWorld } from '../RemoteWorld';
 import { deserialize } from '../deserialize';
 import { GET_MODEL, CALL_FUNCTION, SUBSCRIBE_UPDATES } from '../constants';
+import type { Message, QueryMessage, ErrorMessage } from './typings';
 
 class RemoteModel extends createModel(data => data) {}
 
 type ExportId = number | string;
 type Resolver = (value: any) => void;
 
-type Message<T extends string, Q = any, P = any> = { type: T; query: Q; payload: P };
-type QueryMessage<T extends string, Q = any, P = any> = { type: T; query: Q };
-type ErrorMessage<T extends string, Q = any, E = any> = { type: T; query: Q; error: E };
-type PostMessage<T extends string, Q = any, P = any, E = any> = (
+type PostMessageFn<T extends string, Q = any, P = any, E = any> = (
   msg: Message<T, Q, P> | QueryMessage<T, Q> | ErrorMessage<T, Q, E>,
 ) => void;
 
 type OnInit = (init: { onMessage: (message: Message<string>) => void }) => void;
 
-export function connect({ postMessage, onInit }: { postMessage: PostMessage<string>; onInit: OnInit }) {
+export function connect({ postMessage, onInit }: { postMessage: PostMessageFn<string>; onInit: OnInit }) {
   const gettingModelResolvers: Record<string, Resolver> = {};
   const callsFunctionsResolvers: Map<ExportId, Resolver> = new Map();
 

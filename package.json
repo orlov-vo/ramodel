@@ -57,6 +57,11 @@
       "require": "./dist/cjs/remote/local-storage/mod.js",
       "default": "./dist/remote/local-storage/mod.js"
     },
+    "./remote/chrome": {
+      "types": "./dist/remote/chrome/mod.d.ts",
+      "require": "./dist/cjs/remote/chrome/mod.js",
+      "default": "./dist/remote/chrome/mod.js"
+    },
     "./devtools": {
       "types": "./dist/devtools/mod.d.ts",
       "require": "./dist/cjs/devtools/mod.js",
@@ -102,6 +107,7 @@
     }
   },
   "devDependencies": {
+    "@types/chrome": "^0.0.126",
     "@types/deep-diff": "^1.0.0",
     "@types/jest": "^25.2.1",
     "@types/lodash.clonedeep": "^4.5.6",

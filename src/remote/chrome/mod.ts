@@ -2,4 +2,3 @@
 
 export { connect } from './connect';
 export { expose } from './expose';
-export * from './typings';
