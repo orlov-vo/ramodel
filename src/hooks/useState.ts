@@ -4,31 +4,42 @@
 import { createHook } from '../core/hook';
 import { State } from '../core/state';
 
-type NewState<T> = T | ((previousState: T) => T);
+type CreateStateFn<T> = () => T;
+type InitialState<T> = T | CreateStateFn<T>;
+type UpdateStateFn<T> = (previousState: T) => T;
+type NewState<T> = T | UpdateStateFn<T>;
 type StateUpdater<T> = (value: NewState<T>) => Promise<void>;
+
+function isCreateStateFn<T>(value: InitialState<T>): value is CreateStateFn<T> {
+  return typeof value === 'function';
+}
+
+function isUpdateStateFn<T>(value: NewState<T>): value is UpdateStateFn<T> {
+  return typeof value === 'function';
+}
 
 export const useState = createHook(<T>(state: State) => {
   let args: readonly [T, StateUpdater<T>];
 
-  const makeArgs = (value: T): void => {
+  function makeArgs(value: T): void {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     args = Object.freeze([value, updater] as const);
-  };
+  }
 
-  const updater = async (value: NewState<T>): Promise<void> => {
+  async function updater(value: NewState<T>): Promise<void> {
     const [previousValue] = args;
-    const newValue = typeof value === 'function' ? (value as (previousState?: T) => T)(previousValue) : value;
+    const newValue = isUpdateStateFn(value) ? value(previousValue) : value;
 
     if (newValue !== previousValue) {
       makeArgs(newValue);
       await state.update();
     }
-  };
+  }
 
   return {
-    update: (initialValue: T): typeof args => {
+    update: (initialValue: InitialState<T>): typeof args => {
       if (args === undefined) {
-        makeArgs(typeof initialValue === 'function' ? initialValue() : initialValue);
+        makeArgs(isCreateStateFn(initialValue) ? initialValue() : initialValue);
       }
 
       return args;
