@@ -27,6 +27,9 @@
       "require": "./dist/cjs/core/mod.js",
       "default": "./dist/core/mod.js"
     },
+    "./package.json": {
+      "default": "./package.json"
+    },
     "./hooks": {
       "types": "./dist/hooks/mod.d.ts",
       "require": "./dist/cjs/hooks/mod.js",
