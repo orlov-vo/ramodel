@@ -4,14 +4,20 @@ import { BaseModel } from './types';
 import { onInit } from './createModel';
 import { SCHEDULER, CONTEXTS, CHILDREN } from './symbols';
 import { Scheduler } from './scheduler';
+import { isModel } from './isModel';
 
 export type Context<T> = {
   withValue<R>(value: T, fn: () => R): R;
-  updateValue(instance: BaseModel, value: T): void;
-  removeFrom(instance: BaseModel): void;
-  use(instance: BaseModel): void;
+  updateValue(instance: unknown, value: T): void;
+  removeFrom(instance: unknown): void;
+  use(instance: unknown): void;
   defaultValue: T;
 };
+
+function assertInstance(instance: unknown): asserts instance is BaseModel {
+  if (isModel(instance)) return;
+  throw new Error("You pass not a Model's instance as an argument");
+}
 
 export function createContext<T>(defaultValue: T): Context<T> {
   // Here we store ref schedulers because reference to instances different
@@ -40,15 +46,21 @@ export function createContext<T>(defaultValue: T): Context<T> {
 
       return result;
     },
-    updateValue: (instance: BaseModel, value: T): void => {
+    updateValue: (instance: unknown, value: T): void => {
+      assertInstance(instance);
+
       instance[CONTEXTS].set(context, value);
       deepSchedulerUpdate(instance);
     },
-    removeFrom: (instance: BaseModel): void => {
+    removeFrom: (instance: unknown): void => {
+      assertInstance(instance);
+
       instance[CONTEXTS].delete(context);
       deepSchedulerUpdate(instance);
     },
-    use: (instance: BaseModel): void => {
+    use: (instance: unknown): void => {
+      assertInstance(instance);
+
       const scheduler = instance[SCHEDULER];
 
       if (scheduler == null) {

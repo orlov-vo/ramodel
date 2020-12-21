@@ -2,7 +2,7 @@
 
 export { createInstance } from './createInstance';
 export { createModel } from './createModel';
-export { createContext } from './createContext';
+export { createContext, Context } from './createContext';
 export { destroy } from './destroy';
 export { get } from './get';
 export { createLens, combineLenses, isLens } from './lens';
