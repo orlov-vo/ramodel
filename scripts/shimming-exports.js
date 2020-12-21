@@ -8,6 +8,7 @@ async function main() {
   await Promise.all(
     Object.entries(packageJson.exports).map(async ([subPath, exports]) => {
       if (subPath === '.') return;
+      if (subPath === './package.json') return;
 
       const packageDir = path.resolve(process.cwd(), subPath);
       const normalizePath = relativePath => path.relative(packageDir, path.resolve(process.cwd(), relativePath));
