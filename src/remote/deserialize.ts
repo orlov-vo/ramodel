@@ -1,5 +1,6 @@
 // Copyright 2020 the RaModel authors. All rights reserved. MIT license.
 
+import { isObject } from '../core/isObject';
 import { EXPORT_MODEL, EXPORT_FUNCTION } from './constants';
 
 function updateValuesInObject(obj: object, modificator: (value: unknown) => unknown): object {
@@ -19,7 +20,7 @@ type ExportedModel<TData = unknown> = {
 };
 
 function isExportedModel(instance: unknown): instance is ExportedModel<object> {
-  return typeof instance === 'object' && instance != null && (instance as any).ramodel === EXPORT_MODEL;
+  return isObject(instance) && (instance as any).ramodel === EXPORT_MODEL;
 }
 
 type ExportedFunction = {
@@ -30,7 +31,7 @@ type ExportedFunction = {
 };
 
 function isExportedFunction(instance: unknown): instance is ExportedFunction {
-  return typeof instance === 'object' && instance != null && (instance as any).ramodel === EXPORT_FUNCTION;
+  return isObject(instance) && (instance as any).ramodel === EXPORT_FUNCTION;
 }
 
 type DeserializeOptions = {
@@ -55,7 +56,7 @@ export function deserialize(data: unknown, options: DeserializeOptions): unknown
     return data.map(item => deserialize(item, options));
   }
 
-  if (typeof data === 'object' && data != null) {
+  if (isObject(data)) {
     return updateValuesInObject(data, item => deserialize(item, options));
   }
 

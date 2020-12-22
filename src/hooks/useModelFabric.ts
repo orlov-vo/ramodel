@@ -5,6 +5,7 @@ import type { BaseModel } from '../core/types';
 import type { Context } from '../core/createContext';
 import { getModelInExecuting, setModelInExecuting } from '../core/createModel';
 import { destroy, onDestroy } from '../core/destroy';
+import { isModel } from '../core/mod';
 import { useEffect } from './useEffect';
 import { useCallback } from './useCallback';
 import { useRef } from './useRef';
@@ -16,7 +17,7 @@ type UseModelOptions = {
 export function useModelFabric<Input extends object, Public extends object>(
   Model: ModelClass<Input, Public>,
   options: UseModelOptions = {},
-): (input?: Input) => Public & BaseModel<Input, Public> {
+): (input?: Input) => Public {
   const { contexts = [] } = options;
 
   const instances = useRef(new Set<BaseModel>());
@@ -30,6 +31,10 @@ export function useModelFabric<Input extends object, Public extends object>(
     );
 
     const instance = setModelInExecuting(parent, create);
+    if (!isModel(instance)) {
+      throw new Error('It seems you pass invalid constructor');
+    }
+
     instances.current.add(instance);
 
     return instance;

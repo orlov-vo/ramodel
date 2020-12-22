@@ -9,11 +9,11 @@ import { notify } from './lens';
 import { EventEmitter, createEventEmitter } from './eventEmitter';
 import { onDestroy } from './destroy';
 import { shallowCompare } from './shallowCompare';
-
-type Interface<Input extends object, Public extends object> = Public & BaseModel<Input, Public>;
+import { isObject } from './isObject';
+import { isModel } from './isModel';
 
 export interface ModelClass<Input extends object, Public extends object> {
-  new (input: Input): Interface<Input, Public>;
+  new (input: Input): Public;
 }
 
 const INIT_EVENT = 'init' as const;
@@ -59,13 +59,23 @@ export function getModelInExecuting(): typeof modelInExecuting {
  * @param fn Run function
  * @returns Result from run function
  */
-export function setModelInExecuting<R>(model: typeof modelInExecuting, fn: () => R): R {
+export function setModelInExecuting<R>(model: unknown, fn: () => R): R {
+  if (!isModel(model)) {
+    throw new Error('internal error RA0001');
+  }
+
   const temp = modelInExecuting;
   modelInExecuting = model;
   const result = fn();
   modelInExecuting = temp;
 
   return result;
+}
+
+function addChild(parent: unknown, child: unknown): void {
+  if (!isModel(parent) || !isModel(child)) return;
+
+  parent[CHILDREN].push(child);
 }
 
 const PROXY_HANDLER: ProxyHandler<BaseModel> = {
@@ -130,6 +140,11 @@ const PROXY_HANDLER: ProxyHandler<BaseModel> = {
   },
 };
 
+function createProxy<T extends object>(instance: T): T & BaseModel {
+  if (!isModel(instance)) throw new Error('Internal error RA0002');
+  return new Proxy(instance, PROXY_HANDLER) as T & BaseModel;
+}
+
 /**
  * Create a new model
  *
@@ -189,24 +204,24 @@ export function createModel<Input extends object, Public extends object>(
         const oldInput = this[INPUT];
         this[INPUT] = newInput;
 
+        const isInputChanged =
+          isObject(newInput) && isObject(oldInput) ? !shallowCompare(newInput, oldInput) : newInput !== oldInput;
+
         // Run update if something in input has been changed
-        if (!shallowCompare(oldInput, newInput)) {
-          scheduler.update();
-        }
+        if (!isInputChanged) return;
+        scheduler.update();
       });
 
       // Add this instance to the parent element
       const parent = this[PARENT];
-      if (parent) {
-        parent[CHILDREN].push(this);
-      }
+      addChild(parent, this);
 
       // Emit init event to all subscribers of `onInit`
       bus.emit(INIT_EVENT, this);
 
       // Return reference to proxy-object.
       // It's needed for passing properties and making them read-only in the instance
-      return new Proxy(this, PROXY_HANDLER);
+      return createProxy(this);
     }
   }
 

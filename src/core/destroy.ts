@@ -2,6 +2,7 @@
 
 import { isModel } from './isModel';
 import { createEventEmitter } from './eventEmitter';
+import { isObject } from './isObject';
 
 const bus = createEventEmitter();
 
@@ -21,7 +22,7 @@ export function destroy(...instances: unknown[]) {
     } else if (Array.isArray(instance)) {
       instance.forEach(i => destroy(i));
       bus.emit('array', instance);
-    } else if (typeof instance === 'object' && instance != null) {
+    } else if (isObject(instance)) {
       Object.values(instance).forEach(i => destroy(i));
       bus.emit('object', instance);
     }

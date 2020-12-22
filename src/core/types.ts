@@ -15,7 +15,7 @@ export interface Container<Input, Public> {
   mainFn: (input: Input) => Public;
 }
 
-export interface BaseModel<Input extends object = any, Public extends object = any> {
+export interface BaseModel<Input extends object = {}, Public extends object = {}> {
   [SCHEDULER]: Scheduler<(input: Input) => Public, (result: Public) => void, BaseModel<Input, Public>> | null;
   [INPUT]: Input;
   [RESULT]: Public | null;

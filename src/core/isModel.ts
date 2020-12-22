@@ -2,7 +2,8 @@
 
 import { BaseModel } from './types';
 import { SCHEDULER } from './symbols';
+import { isObject } from './isObject';
 
 export function isModel(instance: unknown): instance is BaseModel {
-  return typeof instance === 'object' && instance != null && (instance as any)[SCHEDULER] != null;
+  return isObject(instance) && (instance as any)[SCHEDULER] != null;
 }

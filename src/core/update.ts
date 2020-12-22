@@ -2,14 +2,16 @@
 
 import { EVENT_EMITTER } from './symbols';
 import { EVENT_UPDATE_INPUT } from './events';
-import { BaseModel } from './types';
+import { isModel } from './isModel';
 
 /**
- * Update input in the model and re-run main function
+ * Update input in the instance and re-run main function
  *
- * @param model Model instance
- * @param input New input for model
+ * @param instance Model instance
+ * @param input New input for instance
  */
-export function update<Input extends object, Public extends object>(model: BaseModel<Input, Public>, input: Input) {
-  model[EVENT_EMITTER].emit(EVENT_UPDATE_INPUT, input);
+export function update<Input extends object>(instance: unknown, input: Input) {
+  if (!isModel(instance)) throw new Error("Couldn't update input for non Model's instance");
+
+  instance[EVENT_EMITTER].emit(EVENT_UPDATE_INPUT, input);
 }

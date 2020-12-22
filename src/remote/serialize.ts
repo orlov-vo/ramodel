@@ -2,6 +2,7 @@
 
 import { RESULT, SCHEDULER } from '../core/symbols';
 import { isModel } from '../core/isModel';
+import { isObject } from '../core/isObject';
 import { EXPORT_MODEL, EXPORT_FUNCTION } from './constants';
 
 function updateValuesInObject(obj: object, modificator: (value: unknown) => unknown): object {
@@ -22,7 +23,7 @@ export function serialize(data: unknown, options: SerializeOptions): unknown {
     return data.map(item => serialize(item, options));
   }
 
-  if (typeof data === 'object' && data != null) {
+  if (isObject(data)) {
     if (isModel(data)) {
       const { getExportId } = options;
       const scheduler = data[SCHEDULER];
@@ -32,7 +33,10 @@ export function serialize(data: unknown, options: SerializeOptions): unknown {
       }
 
       scheduler.flush();
-      const result = updateValuesInObject(data[RESULT], item => serialize(item, options));
+      const originalResult = data[RESULT];
+      const result = originalResult
+        ? updateValuesInObject(originalResult, item => serialize(item, options))
+        : originalResult;
 
       return {
         ramodel: EXPORT_MODEL,
