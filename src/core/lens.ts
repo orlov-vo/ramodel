@@ -109,21 +109,21 @@ export function combineLenses<Result, R>(
 
   const lens = function useCombinedLens() {
     if (Array.isArray(lenses)) {
-      const Lensestates = lenses.map(update => update());
-      const results: R[] = Lensestates.map(i => i.result);
-      const models = Array.from(new Set(Lensestates.flatMap(i => i.models)));
+      const lenseStates = lenses.map(update => update());
+      const results: R[] = lenseStates.map(i => i.result);
+      const models = Array.from(new Set(lenseStates.flatMap(i => i.models)));
 
       return { models, result: memoizedHandler(...results) };
     }
 
-    const Lensestates = Object.entries(lenses).map(
+    const lenseStates = Object.entries(lenses).map(
       ([key, update]) => [key, update()] as [string, ReturnType<typeof update>],
     );
-    const results = Lensestates.reduce((acc, [key, i]) => {
+    const results = lenseStates.reduce((acc, [key, i]) => {
       acc[key] = i.result;
       return acc;
     }, {} as Record<string, R>);
-    const models = Array.from(new Set(Lensestates.flatMap(([_key, i]) => i.models)));
+    const models = Array.from(new Set(lenseStates.flatMap(([_key, i]) => i.models)));
 
     return { models, result: memoizedHandler(results) };
   };
