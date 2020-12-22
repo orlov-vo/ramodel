@@ -1,7 +1,7 @@
 // Copyright 2020 the RaModel authors. All rights reserved. MIT license.
 
 export { createInstance } from './createInstance';
-export { createModel } from './createModel';
+export { createModel, ModelClass } from './createModel';
 export { createContext, Context } from './createContext';
 export { destroy } from './destroy';
 export { get } from './get';
