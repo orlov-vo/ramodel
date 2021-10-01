@@ -11,11 +11,6 @@ export const useContext = createHook(<T>(state: State<BaseModel>) => {
 
   return {
     update: (context: Context<T>) => {
-      if (context !== usedContext) {
-        context.use(state.host);
-        usedContext = context;
-      }
-
       let instance: BaseModel | null = state.host;
 
       while (instance) {
