@@ -7,15 +7,8 @@ import { CONTEXTS, PARENT } from '../core/symbols';
 import { BaseModel } from '../core/types';
 
 export const useContext = createHook(<T>(state: State<BaseModel>) => {
-  let usedContext: Context<T> | null = null;
-
   return {
     update: (context: Context<T>) => {
-      if (context !== usedContext) {
-        context.use(state.host);
-        usedContext = context;
-      }
-
       let instance: BaseModel | null = state.host;
 
       while (instance) {
